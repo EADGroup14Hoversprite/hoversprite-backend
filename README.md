@@ -1,1 +1,1 @@
-Run HoverspriteApplication.java to start Srping Boot server
+Run HoverspriteApplication.java to start Spring Boot server
