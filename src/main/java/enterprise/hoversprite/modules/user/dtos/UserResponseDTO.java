@@ -11,11 +11,9 @@ public class UserResponseDTO {
   private Location homeAddress;
   private Enum<UserRole> userRole;
   private String username;
+  private boolean emailConfirmed;
 
-  public UserResponseDTO() {
-  }
-
-  public UserResponseDTO(Long id, String fullName, String phoneNumber, String emailAddress, Location homeAddress, Enum<UserRole> userRole, String username) {
+  public UserResponseDTO(Long id, String fullName, String phoneNumber, String emailAddress, Location homeAddress, Enum<UserRole> userRole, String username, boolean emailConfirmed) {
     this.id = id;
     this.fullName = fullName;
     this.phoneNumber = phoneNumber;
@@ -23,6 +21,7 @@ public class UserResponseDTO {
     this.homeAddress = homeAddress;
     this.userRole = userRole;
     this.username = username;
+    this.emailConfirmed = emailConfirmed;
   }
 
   public Long getId() {
@@ -79,5 +78,13 @@ public class UserResponseDTO {
 
   public void setUsername(String username) {
     this.username = username;
+  }
+
+  public boolean isEmailConfirmed() {
+    return emailConfirmed;
+  }
+
+  public void setEmailConfirmed(boolean emailConfirmed) {
+    this.emailConfirmed = emailConfirmed;
   }
 }

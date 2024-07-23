@@ -1,10 +1,10 @@
-package enterprise.hoversprite.modules.user.dtos;
+package enterprise.hoversprite.modules.auth.dtos;
 
 import enterprise.hoversprite.common.utils.Location;
 import enterprise.hoversprite.modules.user.enums.UserRole;
 import enterprise.hoversprite.modules.user.model.User;
 
-public class SaveUserRequestDTO {
+public class RegisterDTO {
     private String fullName;
     private String phoneNumber;
     private String emailAddress;
@@ -79,18 +79,5 @@ public class SaveUserRequestDTO {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "SaveUserRequestDTO{" +
-                "fullName='" + fullName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", homeAddress=" + homeAddress +
-                ", userRole=" + userRole +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
     }
 }

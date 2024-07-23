@@ -7,6 +7,7 @@ import enterprise.hoversprite.modules.user.dtos.SaveUserRequestDTO;
 import enterprise.hoversprite.modules.user.dtos.UserResponseDTO;
 import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import enterprise.hoversprite.modules.user.model.User;
@@ -20,7 +21,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public UserResponseDTO createUser(@RequestBody SaveUserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody SaveUserRequestDTO dto) {
         return userService.saveUser(dto.toModel()).toDto();
     }
 
@@ -36,8 +37,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id);
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
     }
 
 }

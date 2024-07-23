@@ -24,13 +24,12 @@ public class User {
   private Enum<UserRole> userRole;
   private String username;
   private String password;
+  private boolean emailConfirmed;
 
-  public User() {
-  }
 
   public User(String fullName, String phoneNumber, Location homeAddress, String emailAddress,
       Enum<UserRole> userRole,
-      String username, String password) {
+      String username, String password, boolean emailConfirmed) {
     this.fullName = fullName;
     this.phoneNumber = phoneNumber;
     this.homeAddress = homeAddress;
@@ -38,6 +37,7 @@ public class User {
     this.userRole = userRole;
     this.username = username;
     this.password = password;
+    this.emailConfirmed = emailConfirmed;
   }
 
   @Override
@@ -55,6 +55,6 @@ public class User {
   }
 
   public UserResponseDTO toDto() {
-    return new UserResponseDTO(this.id, this.fullName, this.phoneNumber, this.emailAddress, this.homeAddress, this.userRole, this.username);
+    return new UserResponseDTO(this.id, this.fullName, this.phoneNumber, this.emailAddress, this.homeAddress, this.userRole, this.username, this.emailConfirmed);
   }
 }

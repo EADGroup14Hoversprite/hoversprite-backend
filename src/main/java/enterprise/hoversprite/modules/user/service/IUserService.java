@@ -12,5 +12,5 @@ public interface IUserService {
 
   public Optional<User> getUserById(Long id);
 
-  public boolean deleteUser(Long id);
+  public void deleteUser(Long id);
 }

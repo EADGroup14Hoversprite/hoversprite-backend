@@ -27,8 +27,7 @@ public class UserService implements IUserService {
     return userRepository.findById(id);
   }
 
-  public boolean deleteUser(Long id) {
+  public void deleteUser(Long id) {
     userRepository.deleteById(id);
-    return true;
   }
 }
