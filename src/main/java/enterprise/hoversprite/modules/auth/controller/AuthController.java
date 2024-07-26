@@ -1,8 +1,5 @@
 package enterprise.hoversprite.modules.auth.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import enterprise.hoversprite.modules.auth.dtos.RegisterDTO;
 import enterprise.hoversprite.modules.auth.dtos.SignInDTO;
 import enterprise.hoversprite.modules.user.model.User;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.regex.Pattern;
 
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -25,8 +21,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO registerDTO) {
-        if (!isPasswordValid(registerDTO.getPassword())){
-            return ResponseEntity.badRequest().body("Password must contain at least one capital letter and one special charater.");
+        if (!isPasswordValid(registerDTO.getPassword())) {
+            return ResponseEntity.badRequest().body("Password must contain at least one capital letter and one special character.");
         }
 
         if (userService.findByEmail(registerDTO.getEmailAddress()) != null || userService.findByPhoneNumber(registerDTO.getPhoneNumber()) != null) {
@@ -68,7 +64,7 @@ public class AuthController {
 
     @PostMapping("/password-recovery")
     public ResponseEntity<String> recoverPassword(@RequestParam String email) {
-       //Handle password recovery logic
+        //Handle password recovery logic
         boolean isRecoveryEmailSent = userService.sendRecoveryEmail(email);
         if (isRecoveryEmailSent) {
             return ResponseEntity.ok("Password recovery email sent!");
@@ -83,4 +79,3 @@ public class AuthController {
         return Pattern.compile(passwordPattern).matcher(password).matches();
     }
 }
-

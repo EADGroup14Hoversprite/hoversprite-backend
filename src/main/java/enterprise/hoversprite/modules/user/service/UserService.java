@@ -1,8 +1,8 @@
 package enterprise.hoversprite.modules.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +12,7 @@ import enterprise.hoversprite.modules.user.repository.UserRepository;
 
 @Service
 public class UserService implements IUserService {
-  @Autowired
+
   private final UserRepository userRepository;
   private final BCryptPasswordEncoder passwordEncoder;
 
@@ -22,8 +22,8 @@ public class UserService implements IUserService {
     this.passwordEncoder = new BCryptPasswordEncoder();
   }
 
-  public User Register(User user) {
-    user.setPassword(passwordEncoder.encoder(user.getPassword()));
+  public User register(User user) {
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
     return userRepository.save(user);
   }
 
@@ -36,7 +36,7 @@ public class UserService implements IUserService {
   }
 
   public boolean confirmEmail(String token) {
-    //Logic to confirm email using the token
+    // Logic to confirm email using the token
     User user = userRepository.findByEmailConfirmationToken(token);
     if (user != null) {
       user.setEmailConfirmed(true);
@@ -49,7 +49,7 @@ public class UserService implements IUserService {
   public boolean sendRecoveryEmail(String email) {
     User user = findByEmail(email);
     if (user != null) {
-      //logic to send recovery email
+      // Logic to send recovery email
       String token = generateRecoveryToken(user);
       sendEmail(user.getEmail(), token);
       return true;
@@ -58,12 +58,12 @@ public class UserService implements IUserService {
   }
 
   private String generateRecoveryToken(User user) {
-    //Generate a token for password recovery
+    // Generate a token for password recovery
     return "Generate Token";
   }
 
   private void sendEmail(String email, String token) {
-    //logic to send Email
+    // Logic to send email
   }
 
   public User saveUser(User user) {

@@ -1,13 +1,10 @@
 package enterprise.hoversprite.modules.user.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import enterprise.hoversprite.modules.user.dtos.SaveUserRequestDTO;
 import enterprise.hoversprite.modules.user.dtos.UserResponseDTO;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import enterprise.hoversprite.modules.user.model.User;
@@ -21,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody SaveUserRequestDTO dto) {
+    public UserResponseDTO createUser(@RequestBody SaveUserRequestDTO dto) {
         return userService.saveUser(dto.toModel()).toDto();
     }
 
