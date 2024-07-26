@@ -51,7 +51,7 @@ public class UserService implements IUserService {
     if (user != null) {
       // Logic to send recovery email
       String token = generateRecoveryToken(user);
-      sendEmail(user.getEmail(), token);
+      sendEmail(user.getEmailAddress(), token);
       return true;
     }
     return false;
