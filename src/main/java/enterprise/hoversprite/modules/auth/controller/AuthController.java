@@ -53,7 +53,7 @@ public class AuthController {
 
     @PostMapping("/email-confirmation")
     public ResponseEntity<String> emailConfirmation(@RequestParam String token) {
-        //Handle email confirmation logic
+        // Handle email confirmation logic
         boolean isConfirmed = userService.confirmEmail(token);
         if (isConfirmed) {
             return ResponseEntity.ok("Email confirmed!");
@@ -64,7 +64,7 @@ public class AuthController {
 
     @PostMapping("/password-recovery")
     public ResponseEntity<String> recoverPassword(@RequestParam String email) {
-        //Handle password recovery logic
+        // Handle password recovery logic
         boolean isRecoveryEmailSent = userService.sendRecoveryEmail(email);
         if (isRecoveryEmailSent) {
             return ResponseEntity.ok("Password recovery email sent!");
@@ -74,7 +74,7 @@ public class AuthController {
     }
 
     private boolean isPasswordValid(String password) {
-        //Password must contain at least one capital letter and one special character
+        // Password must contain at least one capital letter and one special character
         String passwordPattern = "^(?=.*[A-Z])(?=.*[!@#$&*]).+$";
         return Pattern.compile(passwordPattern).matcher(password).matches();
     }
