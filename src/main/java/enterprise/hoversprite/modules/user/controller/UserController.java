@@ -17,28 +17,28 @@ import enterprise.hoversprite.modules.user.service.UserService;
 @RequestMapping("/api/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+  @Autowired
+  private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody SaveUserRequestDTO dto) {
-        return userService.saveUser(dto.toModel()).toDto();
-    }
+  @PostMapping
+  public UserResponseDTO createUser(@RequestBody SaveUserRequestDTO dto) {
+    return userService.saveUser(dto.toModel()).toDto();
+  }
 
-    @GetMapping("/{id}")
-    public Optional<UserResponseDTO> getUserById(@PathVariable Long id) {
-        Optional<User> optionalUser = userService.getUserById(id);
-        return optionalUser.map(User::toDto);
-    }
+  @GetMapping("/{id}")
+  public Optional<UserResponseDTO> getUserById(@PathVariable Long id) {
+    Optional<User> optionalUser = userService.getUserById(id);
+    return optionalUser.map(User::toDto);
+  }
 
-    @PutMapping("/{id}")
-    public UserResponseDTO updateUser(@RequestBody SaveUserRequestDTO dto) {
-        return userService.saveUser(dto.toModel()).toDto();
-    }
+  @PutMapping("/{id}")
+  public UserResponseDTO updateUser(@RequestBody SaveUserRequestDTO dto) {
+    return userService.saveUser(dto.toModel()).toDto();
+  }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-    }
+  @DeleteMapping("/{id}")
+  public void deleteUser(@PathVariable Long id) {
+    userService.deleteUser(id);
+  }
 
 }
