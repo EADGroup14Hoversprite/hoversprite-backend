@@ -10,6 +10,7 @@ public class RegisterDTO {
     private String emailAddress;
     private Location homeAddress;
     private String userRole;
+    private String expertise;
     private String username;
     private String password;
 
@@ -18,9 +19,9 @@ public class RegisterDTO {
             case "FARMER" ->
                     new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.FARMER, username, password, false);
             case "RECEPTIONIST" ->
-                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.RECEPTIONIST, username, password, false);
+                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.RECEPTIONIST, username, password, false, expertise);
             case "SPRAYER" ->
-                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.SPRAYER, username, password, false);
+                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.SPRAYER, username, password, false, expertise);
             default -> throw new IllegalStateException("Unexpected value: " + userRole);
         };
     }
