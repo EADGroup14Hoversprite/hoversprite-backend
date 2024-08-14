@@ -1,11 +1,11 @@
-### Requirements
+## Requirements
 Make sure you have Docker, Docker Compose, OpenJDK22
 
-### Start Server
+## Start Server
 
-## Windows
+### Windows
 Run init_windows.bat
 
-## Linux
+### Linux
 In the project root directory, open the terminal and type
 sudo sh ./init_linux.sh
