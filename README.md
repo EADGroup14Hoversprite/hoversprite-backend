@@ -1,6 +1,11 @@
-### Database Initialization
-Make sure PostgreSQL is installed on your computer for the database to work.
-On the first ever run of this application, please run the shell script init_db.sh to intialize the database and the admin.
+### Requirements
+Make sure you have Docker, Docker Compose, OpenJDK22
 
-### Run Spring Boot application
-Run HoverspriteApplication.java to start Spring Boot server
+### Start Server
+
+## Windows
+Run init_windows.bat
+
+## Linux
+In the project root directory, open the terminal and type
+sudo sh ./init_linux.sh

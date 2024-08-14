@@ -5,6 +5,8 @@ import java.util.Optional;
 import enterprise.hoversprite.modules.user.dtos.SaveUserRequestDTO;
 import enterprise.hoversprite.modules.user.dtos.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import enterprise.hoversprite.modules.user.model.User;
@@ -14,28 +16,31 @@ import enterprise.hoversprite.modules.user.service.UserService;
 @RequestMapping("/api/user")
 public class UserController {
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private UserService userService;
 
-  @PostMapping
-  public UserResponseDTO createUser(@RequestBody SaveUserRequestDTO dto) {
-    return userService.saveUser(dto.toModel()).toDto();
-  }
+    // Only for admin
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody SaveUserRequestDTO dto) {
+        return new ResponseEntity<>(userService.saveUser(dto.toModel()).toDto(), HttpStatus.OK);
+    }
 
-  @GetMapping("/{id}")
-  public Optional<UserResponseDTO> getUserById(@PathVariable Long id) {
-    Optional<User> optionalUser = userService.getUserById(id);
-    return optionalUser.map(User::toDto);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<UserResponseDTO>> getUserById(@RequestParam Long id) {
+        Optional<User> optionalUser = userService.getUserById(id);
+        return new ResponseEntity<>(optionalUser.map(User::toDto), HttpStatus.OK);
+    }
 
-  @PutMapping("/{id}")
-  public UserResponseDTO updateUser(@RequestBody SaveUserRequestDTO dto) {
-    return userService.saveUser(dto.toModel()).toDto();
-  }
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody SaveUserRequestDTO dto) {
+        return new ResponseEntity<>(userService.saveUser(dto.toModel()).toDto(), HttpStatus.OK);
+    }
 
-  @DeleteMapping("/{id}")
-  public void deleteUser(@PathVariable Long id) {
-    userService.deleteUser(id);
-  }
+    // Only for admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@RequestParam Long id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

@@ -1,6 +1,6 @@
 package enterprise.hoversprite.modules.user.dtos;
 
-import enterprise.hoversprite.common.utils.Location;
+import enterprise.hoversprite.common.types.Location;
 import enterprise.hoversprite.modules.user.enums.UserRole;
 import enterprise.hoversprite.modules.user.model.User;
 
@@ -16,11 +16,12 @@ public class SaveUserRequestDTO {
     public User toModel() {
         return switch (userRole) {
             case "FARMER" ->
-                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.FARMER, username, password, false);
+                new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.FARMER, username, password, false);
             case "RECEPTIONIST" ->
-                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.RECEPTIONIST, username, password, false);
+                new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.RECEPTIONIST, username, password,
+                        false);
             case "SPRAYER" ->
-                    new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.SPRAYER, username, password, false);
+                new User(fullName, phoneNumber, homeAddress, emailAddress, UserRole.SPRAYER, username, password, false);
             default -> throw new IllegalStateException("Unexpected value: " + userRole);
         };
     }

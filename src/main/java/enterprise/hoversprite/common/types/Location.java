@@ -1,4 +1,4 @@
-package enterprise.hoversprite.common.utils;
+package enterprise.hoversprite.common.types;
 
 import jakarta.persistence.*;
 

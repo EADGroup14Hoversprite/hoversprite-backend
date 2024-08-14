@@ -1,11 +1,18 @@
 package enterprise.hoversprite.modules.auth.service;
 
 import enterprise.hoversprite.modules.auth.dtos.SignInDTO;
+import enterprise.hoversprite.modules.auth.repository.AuthRepository;
 import enterprise.hoversprite.modules.user.model.User;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService implements IAuthService{
+public class AuthService implements IAuthService {
+
+    @Autowired
+    private AuthRepository authRepository;
+
     @Override
     public String register(User user) {
         return "";
