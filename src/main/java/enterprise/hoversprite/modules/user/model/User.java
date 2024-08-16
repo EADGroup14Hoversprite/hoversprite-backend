@@ -1,155 +1,105 @@
 package enterprise.hoversprite.modules.user.model;
 
+import enterprise.hoversprite.common.enums.AuthRole;
+import enterprise.hoversprite.common.enums.Expertise;
+import enterprise.hoversprite.common.enums.UserRole;
 import enterprise.hoversprite.common.types.Location;
-import enterprise.hoversprite.modules.user.dtos.UserResponseDTO;
-import enterprise.hoversprite.modules.user.enums.UserRole;
+import enterprise.hoversprite.modules.user.dtos.UserDTO;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements UserDetails {
+
     @Id
-    @Column(name = "id", columnDefinition = "serial")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fullName;
+
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
+
+    @Column(nullable = false, unique = true)
     private String emailAddress;
 
     @Embedded
-    private Location homeAddress; // change this to Address later
+    private Location homeAddress;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole userRole;
 
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
-    private boolean emailConfirmed;
 
-    private String expertise;
+    @Column(nullable = false)
+    private Boolean emailConfirmed;
 
-    public User() {
-        // Default constructor for JPA
-    }
+    @Enumerated(EnumType.STRING)
+    private Expertise expertise;
 
-    public User(String fullName, String phoneNumber, Location homeAddress, String emailAddress,
-            UserRole userRole, String username, String password, boolean emailConfirmed) {
-        this.fullName = fullName;
-        this.phoneNumber = phoneNumber;
-        this.homeAddress = homeAddress;
-        this.emailAddress = emailAddress;
-        this.userRole = userRole;
-        this.username = username;
-        this.password = password;
-        this.emailConfirmed = emailConfirmed;
-    }
+    @Column(nullable = false)
+    private AuthRole authRole;
 
-    public User(String fullName, String phoneNumber, Location homeAddress, String emailAddress,
-            UserRole userRole, String username, String password, boolean emailConfirmed, String expertise) {
-        this(fullName, phoneNumber, homeAddress, emailAddress, userRole, username, password, emailConfirmed);
-        this.expertise = expertise;
-    }
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
 
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-    public Location getHomeAddress() {
-        return homeAddress;
-    }
-
-    public void setHomeAddress(Location homeAddress) {
-        this.homeAddress = homeAddress;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isEmailConfirmed() {
-        return emailConfirmed;
-    }
-
-    public void setEmailConfirmed(boolean emailConfirmed) {
-        this.emailConfirmed = emailConfirmed;
-    }
-
-    public String getExpertise() {
-        return expertise;
-    }
-
-    public void setExpertise(String expertise) {
-        this.expertise = expertise;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(authRole.name()), new SimpleGrantedAuthority(userRole.name()));
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", fullName='" + fullName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", homeAddress=" + homeAddress +
-                ", userRole=" + userRole +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", emailConfirmed=" + emailConfirmed +
-                ", expertise='" + expertise + '\'' +
-                '}';
+    public String getUsername() {
+        return String.valueOf(id);
     }
 
-    public UserResponseDTO toDto() {
-        return new UserResponseDTO(this.id, this.fullName, this.phoneNumber, this.emailAddress, this.homeAddress,
-                this.userRole, this.username, this.emailConfirmed);
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
+    public UserDTO toDto() {
+        return new UserDTO(id, fullName, phoneNumber, emailAddress, homeAddress, userRole, username, expertise, createdAt, updatedAt);
     }
 }

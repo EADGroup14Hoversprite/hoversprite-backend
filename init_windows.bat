@@ -33,7 +33,7 @@ if %ERRORLEVEL% NEQ 0 (
 :: This section will build the JAR file
 
 echo Building JAR file...
-mvn clean package -DskipTests
+mvn clean package
 
 if %ERRORLEVEL% EQU 0 (
     echo JAR file built successfully.

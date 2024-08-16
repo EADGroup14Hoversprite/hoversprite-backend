@@ -1,6 +1,6 @@
-package enterprise.hoversprite.modules.booking.enums;
+package enterprise.hoversprite.modules.order.enums;
 
-public enum BookingStatus {
+public enum OrderStatus {
     PENDING,
     CANCELLED,
     CONFIRMED,
