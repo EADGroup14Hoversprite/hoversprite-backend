@@ -34,7 +34,7 @@ fi
 ## This section will build the JAR file
 
 echo "Building JAR file..."
-mvn clean package -DskipTests
+mvn clean package
 
 if [ $? -eq 0 ]; then
     echo "JAR file built successfully"

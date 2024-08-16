@@ -1,14 +1,11 @@
 package enterprise.hoversprite.modules.user.service;
 
+import enterprise.hoversprite.modules.user.model.User;
+import enterprise.hoversprite.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-
-import enterprise.hoversprite.modules.user.model.User;
-import enterprise.hoversprite.modules.user.repository.UserRepository;
 
 @Service
 public class UserService implements IUserService {
@@ -16,19 +13,42 @@ public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User saveUser(User user) {
+    @Override
+    public User createUser(User user) throws Exception {
+        if (userRepository.findByEmailAddress(user.getEmailAddress()).isPresent()) {
+            throw new Exception("This email has already been registered");
+        }
+
+        if (userRepository.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
+            throw new Exception("This phone number has already been registered");
+        }
+
         return userRepository.save(user);
     }
 
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    @Override
+    public User getUserById(Long id) throws Exception {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new Exception("User with this id does not exists"));
     }
 
-    public void deleteUser(Long id) {
+    @Override
+    public User getUserByEmailAddressOrPhoneNumber(String emailOrPhone) throws Exception {
+        return userRepository.findByEmailAddress(emailOrPhone)
+                .or(() -> userRepository.findByPhoneNumber(emailOrPhone))
+                .orElseThrow(() -> new Exception("User with this email address or phone number does not exists"));
+    }
+
+    @Override
+    public void deleteUser(Long id) throws Exception {
+        if (!userRepository.existsById(id)) {
+            throw new Exception("User with this id does not exists");
+        }
         userRepository.deleteById(id);
     }
 }

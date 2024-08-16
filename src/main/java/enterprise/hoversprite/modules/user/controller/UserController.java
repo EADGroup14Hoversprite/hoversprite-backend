@@ -1,46 +1,48 @@
 package enterprise.hoversprite.modules.user.controller;
 
-import java.util.Optional;
-
-import enterprise.hoversprite.modules.user.dtos.SaveUserRequestDTO;
-import enterprise.hoversprite.modules.user.dtos.UserResponseDTO;
+import enterprise.hoversprite.modules.user.dtos.DeleteUserResponseDTO;
+import enterprise.hoversprite.modules.user.dtos.GetUserResponseDTO;
+import enterprise.hoversprite.modules.user.model.User;
+import enterprise.hoversprite.modules.user.service.IUserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import enterprise.hoversprite.modules.user.model.User;
-import enterprise.hoversprite.modules.user.service.UserService;
-
+@Tag(name = "User API")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
-    // Only for admin
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody SaveUserRequestDTO dto) {
-        return new ResponseEntity<>(userService.saveUser(dto.toModel()).toDto(), HttpStatus.OK);
-    }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<UserResponseDTO>> getUserById(@RequestParam Long id) {
-        Optional<User> optionalUser = userService.getUserById(id);
-        return new ResponseEntity<>(optionalUser.map(User::toDto), HttpStatus.OK);
+    public ResponseEntity<GetUserResponseDTO> getUserById(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id);
+            return new ResponseEntity<>(new GetUserResponseDTO("User data found", user.toDto()), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new GetUserResponseDTO(e.getMessage(), null), HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody SaveUserRequestDTO dto) {
-        return new ResponseEntity<>(userService.saveUser(dto.toModel()).toDto(), HttpStatus.OK);
-    }
-
-    // Only for admin
+    //Authorized for admin
+    //Authorized for user with jwt token id == param
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@RequestParam Long id) {
-        userService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<DeleteUserResponseDTO> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>(new DeleteUserResponseDTO("User deleted successfully"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new DeleteUserResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
     }
 
 }
