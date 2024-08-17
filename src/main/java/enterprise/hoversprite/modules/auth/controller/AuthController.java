@@ -21,23 +21,15 @@ public class AuthController {
     private IAuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO registerDTO) {
-        try {
-            String token = authService.register(registerDTO.toModel());
-            return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new AuthResponseDTO(e.getMessage(), null), HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO registerDTO) throws Exception {
+        String token = authService.register(registerDTO.toModel());
+        return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<AuthResponseDTO> signIn(@RequestBody SignInRequestDTO signInDTO) {
-        try {
-            String token = authService.signIn(signInDTO);
-            return new ResponseEntity<>(new AuthResponseDTO("User signed in successfully", token), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new AuthResponseDTO(e.getMessage(), null), HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<AuthResponseDTO> signIn(@RequestBody SignInRequestDTO signInDTO) throws Exception {
+        String token = authService.signIn(signInDTO);
+        return new ResponseEntity<>(new AuthResponseDTO("User signed in successfully", token), HttpStatus.CREATED);
     }
 
     @SecurityRequirement(name = "bearerAuth")

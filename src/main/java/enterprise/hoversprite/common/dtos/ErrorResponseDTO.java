@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public class AuthErrorResponseDTO {
+public class ErrorResponseDTO {
 
     @NonNull
     private String message;

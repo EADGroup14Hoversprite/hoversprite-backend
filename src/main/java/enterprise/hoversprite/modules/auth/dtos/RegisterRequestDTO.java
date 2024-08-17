@@ -47,7 +47,7 @@ public class RegisterRequestDTO {
             case "SPRAYER" ->
                     new User(null, fullName, phoneNumber, emailAddress, homeAddress, UserRole.ROLE_SPRAYER, username, password, false, Expertise.APPRENTICE, AuthRole.ROLE_USER, null, null);
             default ->
-                    throw new IllegalStateException("Unexpected value for user role: " + userRole + ". Should be FARMER, RECEPTIONIST or SPRAYER.");
+                    throw new IllegalArgumentException("Cannot convert user role " + userRole + " to UserRole enum. Must be either FARMER, RECEPTIONIST or SPRAYER.");
         };
     }
 }
