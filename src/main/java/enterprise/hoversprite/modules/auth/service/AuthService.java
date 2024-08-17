@@ -5,6 +5,7 @@ import enterprise.hoversprite.modules.auth.dtos.SignInRequestDTO;
 import enterprise.hoversprite.modules.user.model.User;
 import enterprise.hoversprite.modules.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,10 @@ public class AuthService implements IAuthService {
     public String signIn(SignInRequestDTO dto) throws Exception {
 
         User user = userService.getUserByEmailAddressOrPhoneNumber(dto.getEmailOrPhone());
+
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid password.");
+        }
 
         return jwtService.generateToken(user);
     }
