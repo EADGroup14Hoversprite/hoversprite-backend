@@ -4,6 +4,7 @@ import enterprise.hoversprite.modules.auth.dtos.request.RegisterRequestDTO;
 import enterprise.hoversprite.modules.auth.dtos.request.SignInRequestDTO;
 import enterprise.hoversprite.modules.auth.dtos.response.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AuthController {
     private IAuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO dto) throws Exception {
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) throws Exception {
         String token = authService.register(dto);
         return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
     }

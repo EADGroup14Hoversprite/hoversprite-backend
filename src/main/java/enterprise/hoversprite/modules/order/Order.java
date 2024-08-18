@@ -5,8 +5,10 @@ import enterprise.hoversprite.modules.order.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "bookings")
@@ -19,7 +21,8 @@ class Order {
     private Long id;
 
     private Long farmerId;
-    private Date date;
+
+    private LocalDate date;
 
     @Enumerated(EnumType.STRING)
     private OrderSlot timeSlot;
@@ -29,4 +32,12 @@ class Order {
 
     private Long assignedSprayerId;
 
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private LocalDate createdAt;
+
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDate updatedAt;
 }
