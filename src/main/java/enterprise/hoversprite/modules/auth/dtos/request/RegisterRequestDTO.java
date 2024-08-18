@@ -1,5 +1,7 @@
 package enterprise.hoversprite.modules.auth.dtos.request;
 
+import enterprise.hoversprite.common.enums.Expertise;
+import enterprise.hoversprite.common.enums.UserRole;
 import enterprise.hoversprite.common.types.Location;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -20,7 +22,7 @@ public class RegisterRequestDTO {
     private String phoneNumber;
 
     @NonNull
-    @Email
+    @Email(message = "Invalid email address format")
     @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+", message = "Email must follow normal email format with email domain of @hoversprite")
     private String emailAddress;
 
@@ -28,9 +30,9 @@ public class RegisterRequestDTO {
     private Location homeAddress;
 
     @NonNull
-    private String userRole;
+    private UserRole userRole;
 
-    private String expertise;
+    private Expertise expertise;
 
     @NonNull
     private String username;
