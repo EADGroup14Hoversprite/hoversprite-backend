@@ -11,6 +11,7 @@
     <groupId>enterprise</groupId>
     <artifactId>hoversprite</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>hoversprite</name>
     <description>Hoversprite Backend for Enterprise Application Development</description>
     <url/>
@@ -20,6 +21,10 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>main</module>
+        <module>modules</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
