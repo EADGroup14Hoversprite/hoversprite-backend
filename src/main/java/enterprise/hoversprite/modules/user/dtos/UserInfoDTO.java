@@ -1,18 +1,15 @@
 package enterprise.hoversprite.modules.user.dtos;
 
 import enterprise.hoversprite.common.enums.Expertise;
-import enterprise.hoversprite.common.enums.UserRole;
 import enterprise.hoversprite.common.types.Location;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class UserDTO {
+public class UserInfoDTO {
     private Long id;
 
     private String fullName;
@@ -23,14 +20,11 @@ public class UserDTO {
 
     private Location homeAddress;
 
-    private UserRole userRole;
-
-    private String username;
+    private Boolean emailConfirmed;
 
     private Expertise expertise;
 
-    private Date createdAt;
+    private LocalDate createdAt;
 
-    private Date updatedAt;
-
+    private LocalDate updatedAt;
 }

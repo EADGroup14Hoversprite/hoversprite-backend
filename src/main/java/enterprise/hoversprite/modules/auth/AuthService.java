@@ -1,16 +1,17 @@
-package enterprise.hoversprite.modules.auth.service;
+package enterprise.hoversprite.modules.auth;
 
 import enterprise.hoversprite.common.jwt.JwtService;
-import enterprise.hoversprite.modules.auth.dtos.SignInRequestDTO;
-import enterprise.hoversprite.modules.user.model.User;
-import enterprise.hoversprite.modules.user.service.IUserService;
+import enterprise.hoversprite.modules.auth.dtos.request.RegisterRequestDTO;
+import enterprise.hoversprite.modules.auth.dtos.request.SignInRequestDTO;
+import enterprise.hoversprite.modules.user.IUserService;
+import enterprise.hoversprite.modules.user.dtos.UserAuthInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService implements IAuthService {
+class AuthService implements IAuthService {
 
     @Autowired
     private IUserService userService;
@@ -22,23 +23,23 @@ public class AuthService implements IAuthService {
     private JwtService jwtService;
 
     @Override
-    public String register(User user) throws Exception {
+    public String register(RegisterRequestDTO dto) throws Exception {
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        return jwtService.generateToken(userService.createUser(user));
+        return jwtService.generateToken(userService.createUser(dto));
     }
 
     @Override
     public String signIn(SignInRequestDTO dto) throws Exception {
 
-        User user = userService.getUserByEmailAddressOrPhoneNumber(dto.getEmailOrPhone());
+        UserAuthInfoDTO authDto = userService.getUserByEmailAddressOrPhoneNumber(dto.getEmailOrPhone());
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), authDto.getPassword())) {
             throw new BadCredentialsException("Invalid password.");
         }
 
-        return jwtService.generateToken(user);
+        return jwtService.generateToken(authDto);
     }
 
     @Override

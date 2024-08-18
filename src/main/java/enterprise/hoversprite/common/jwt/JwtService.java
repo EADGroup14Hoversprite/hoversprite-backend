@@ -2,7 +2,7 @@ package enterprise.hoversprite.common.jwt;
 
 import enterprise.hoversprite.common.enums.AuthRole;
 import enterprise.hoversprite.common.enums.UserRole;
-import enterprise.hoversprite.modules.user.model.User;
+import enterprise.hoversprite.modules.user.dtos.UserAuthInfoDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
@@ -33,15 +33,15 @@ public class JwtService {
     }
 
 
-    public String generateToken(User user) {
+    public String generateToken(UserAuthInfoDTO dto) {
         Claims claims = new DefaultClaims();
-        claims.put("authRole", user.getAuthRole());
-        claims.put("userRole", user.getUserRole());
+        claims.put("authRole", dto.getAuthRole());
+        claims.put("userRole", dto.getUserRole());
 
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .setSubject(String.valueOf(user.getId()))
+                .setSubject(String.valueOf(dto.getId()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey())
