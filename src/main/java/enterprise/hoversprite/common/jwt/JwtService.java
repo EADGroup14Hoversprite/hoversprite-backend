@@ -17,7 +17,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-public class JwtService {
+class JwtService {
     @Value("${security.jwt.secret}")
     private String secretKey;
 
