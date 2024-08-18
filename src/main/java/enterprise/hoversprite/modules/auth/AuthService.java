@@ -1,6 +1,6 @@
 package enterprise.hoversprite.modules.auth;
 
-import enterprise.hoversprite.common.jwt.JwtService;
+import enterprise.hoversprite.common.jwt.IJwtService;
 import enterprise.hoversprite.modules.auth.dtos.request.RegisterRequestDTO;
 import enterprise.hoversprite.modules.auth.dtos.request.SignInRequestDTO;
 import enterprise.hoversprite.modules.user.IUserService;
@@ -20,7 +20,7 @@ class AuthService implements IAuthService {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private JwtService jwtService;
+    private IJwtService jwtService;
 
     @Override
     public String register(RegisterRequestDTO dto) throws Exception {

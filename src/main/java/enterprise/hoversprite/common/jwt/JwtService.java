@@ -9,6 +9,7 @@ import io.jsonwebtoken.impl.DefaultClaims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,14 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private final String secretKey = "4c57f5bce709474cda66f67778ade103f84c81458cd98d33ad76e960f520462e";
+    @Value("${security.jwt.secret}")
+    private String secretKey;
 
-    private final Long jwtExpiration = 3600000L;
+    @Value("${security.jwt.expiration}")
+    private Long jwtExpiration;
 
     public Boolean isValid(String token, UserDetails user) {
         String id = getUserIdFromJwt(token);
-        System.out.println(id);
-        System.out.println(user.getUsername());
         return id.equals(user.getUsername()) && !isTokenExpired(token);
     }
 
