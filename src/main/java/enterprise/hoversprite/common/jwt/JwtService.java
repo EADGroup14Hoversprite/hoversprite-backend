@@ -2,13 +2,14 @@ package enterprise.hoversprite.common.jwt;
 
 import enterprise.hoversprite.common.enums.AuthRole;
 import enterprise.hoversprite.common.enums.UserRole;
-import enterprise.hoversprite.modules.user.model.User;
+import enterprise.hoversprite.modules.user.dtos.UserAuthInfoDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,15 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-public class JwtService {
-    private final String secretKey = "4c57f5bce709474cda66f67778ade103f84c81458cd98d33ad76e960f520462e";
+class JwtService implements IJwtService {
+    @Value("${security.jwt.secret}")
+    private String secretKey;
 
-    private final Long jwtExpiration = 3600000L;
+    @Value("${security.jwt.expiration}")
+    private Long jwtExpiration;
 
     public Boolean isValid(String token, UserDetails user) {
         String id = getUserIdFromJwt(token);
-        System.out.println(id);
-        System.out.println(user.getUsername());
         return id.equals(user.getUsername()) && !isTokenExpired(token);
     }
 
@@ -33,15 +34,15 @@ public class JwtService {
     }
 
 
-    public String generateToken(User user) {
+    public String generateToken(UserAuthInfoDTO dto) {
         Claims claims = new DefaultClaims();
-        claims.put("authRole", user.getAuthRole());
-        claims.put("userRole", user.getUserRole());
+        claims.put("authRole", dto.getAuthRole());
+        claims.put("userRole", dto.getUserRole());
 
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .setSubject(String.valueOf(user.getId()))
+                .setSubject(String.valueOf(dto.getId()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey())

@@ -1,4 +1,4 @@
-package enterprise.hoversprite.modules.auth.dtos;
+package enterprise.hoversprite.modules.auth.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

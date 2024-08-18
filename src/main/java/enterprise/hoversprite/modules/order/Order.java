@@ -1,4 +1,4 @@
-package enterprise.hoversprite.modules.order.model;
+package enterprise.hoversprite.modules.order;
 
 import enterprise.hoversprite.modules.order.enums.OrderSlot;
 import enterprise.hoversprite.modules.order.enums.OrderStatus;
@@ -12,7 +12,7 @@ import java.util.Date;
 @Table(name = "bookings")
 @Data
 @AllArgsConstructor
-public class Order {
+class Order {
     @Id
     @Column(name = "id", columnDefinition = "serial")
     @GeneratedValue(strategy = GenerationType.AUTO)
