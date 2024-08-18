@@ -3,14 +3,19 @@ package enterprise.hoversprite.modules.order;
 import enterprise.hoversprite.modules.order.dtos.request.CreateOrderRequestDTO;
 import enterprise.hoversprite.modules.order.dtos.response.CreateOrderResponseDTO;
 import enterprise.hoversprite.modules.order.dtos.response.GetOrderResponseDTO;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name = "Order API")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/order")
-public class OrderController {
+class OrderController {
 
     @Autowired
     private IOrderService orderService;
