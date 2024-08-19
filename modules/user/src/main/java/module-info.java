@@ -11,4 +11,7 @@ module user {
     requires spring.security.core;
     requires spring.web;
     requires common;
+
+    exports api.user;
+    exports api.user.dtos;
 }

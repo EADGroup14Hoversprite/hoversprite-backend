@@ -1,6 +1,6 @@
 package exception;
 
-import dtos.response.ErrorResponseDTO;
+import shared.dtos.response.ErrorResponseDTO;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

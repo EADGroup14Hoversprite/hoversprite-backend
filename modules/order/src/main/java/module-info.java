@@ -7,4 +7,6 @@ module order {
     requires spring.context;
     requires spring.data.jpa;
     requires spring.web;
+    requires common;
+    requires com.fasterxml.jackson.annotation;
 }

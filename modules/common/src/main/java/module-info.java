@@ -15,13 +15,14 @@ module common {
     requires jakarta.validation;
     requires jjwt.api;
     requires jjwt.impl;
+    requires com.fasterxml.jackson.annotation;
 
     exports configs;
-    exports enums;
+    exports shared.enums;
     exports exception;
-    exports types;
-    exports dtos.response;
-    exports dtos.request;
-    exports interfaces;
-    exports dtos;
+    exports shared.types;
+    exports shared.dtos.response;
+    exports shared.dtos.request;
+    exports shared.dtos;
+    exports shared.constants;
 }
