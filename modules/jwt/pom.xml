@@ -7,9 +7,10 @@
         <groupId>enterprise</groupId>
         <artifactId>modules</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>user</artifactId>
+    <artifactId>jwt</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -21,6 +22,12 @@
         <dependency>
             <groupId>enterprise</groupId>
             <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>enterprise</groupId>
+            <artifactId>user</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
