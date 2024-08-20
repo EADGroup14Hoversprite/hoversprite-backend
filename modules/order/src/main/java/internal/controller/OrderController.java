@@ -18,7 +18,7 @@ import api.order.OrderService;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/order")
-class OrderController {
+public class OrderController {
 
     @Autowired
     private OrderService orderService;

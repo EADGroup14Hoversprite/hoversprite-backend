@@ -15,5 +15,4 @@ module security {
     requires user;
 
     exports api.security;
-    exports internal.config;
 }

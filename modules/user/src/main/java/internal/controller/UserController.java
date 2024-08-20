@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/user")
-class UserController {
+public class UserController {
 
     @Autowired
     private UserService userService;

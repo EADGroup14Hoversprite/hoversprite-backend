@@ -20,6 +20,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id

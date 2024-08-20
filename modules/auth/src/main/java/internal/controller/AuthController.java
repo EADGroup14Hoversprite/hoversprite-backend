@@ -17,13 +17,13 @@ import shared.dtos.SignInRequestDTO;
 @Tag(name = "Auth API")
 @RestController
 @RequestMapping("/auth")
-class AuthController {
+public class AuthController {
 
     @Autowired
     private AuthService authService;
 
     @PostMapping("/register")
-    ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) throws Exception {
+    ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO dto) throws Exception {
         String token = authService.register(dto);
         return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
     }

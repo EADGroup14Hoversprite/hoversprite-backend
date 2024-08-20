@@ -19,6 +19,7 @@ import java.util.List;
 @Table(name = "orders")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Order implements OrderInfoDTO {
     @Id
     @Column(name = "id", columnDefinition = "serial")

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "internal", "api"})
+@ComponentScan(basePackages = { "internal", "api", "exception"})
 @EnableJpaRepositories("internal.repository")
 @EntityScan("internal.model")
 public class HoverspriteApplication {
