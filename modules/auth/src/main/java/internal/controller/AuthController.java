@@ -1,7 +1,7 @@
 package internal.controller;
 
-import api.auth.IAuthService;
-import internal.dtos.response.AuthResponseDTO;
+import api.auth.AuthService;
+import internal.dtos.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import shared.dtos.request.RegisterRequestDTO;
-import shared.dtos.request.SignInRequestDTO;
+import shared.dtos.RegisterRequestDTO;
+import shared.dtos.SignInRequestDTO;
 
 @Tag(name = "Auth API")
 @RestController
@@ -20,16 +20,16 @@ import shared.dtos.request.SignInRequestDTO;
 class AuthController {
 
     @Autowired
-    private IAuthService authService;
+    private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) throws Exception {
+    ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) throws Exception {
         String token = authService.register(dto);
         return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<AuthResponseDTO> signIn(@RequestBody SignInRequestDTO dto) throws Exception {
+    ResponseEntity<AuthResponseDTO> signIn(@RequestBody SignInRequestDTO dto) throws Exception {
         String token = authService.signIn(dto);
         return new ResponseEntity<>(new AuthResponseDTO("User signed in successfully", token), HttpStatus.CREATED);
     }

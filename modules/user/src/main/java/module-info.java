@@ -2,7 +2,6 @@ module user {
     requires io.swagger.v3.oas.annotations;
     requires jakarta.persistence;
     requires java.sql;
-    requires static lombok;
     requires org.apache.tomcat.embed.core;
     requires org.hibernate.orm.core;
     requires spring.beans;
@@ -11,6 +10,7 @@ module user {
     requires spring.security.core;
     requires spring.web;
     requires common;
+    requires static lombok;
 
     exports api.user;
     exports api.user.dtos;

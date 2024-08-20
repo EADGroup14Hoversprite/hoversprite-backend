@@ -17,12 +17,9 @@ module common {
     requires jjwt.impl;
     requires com.fasterxml.jackson.annotation;
 
-    exports configs;
     exports shared.enums;
     exports exception;
     exports shared.types;
-    exports shared.dtos.response;
-    exports shared.dtos.request;
-    exports shared.dtos;
     exports shared.constants;
+    exports shared.dtos;
 }

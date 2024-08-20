@@ -9,4 +9,7 @@ module order {
     requires spring.web;
     requires common;
     requires com.fasterxml.jackson.annotation;
+
+    exports api.order;
+    exports api.order.dtos;
 }

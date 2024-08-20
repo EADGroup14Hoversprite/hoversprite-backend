@@ -1,10 +1,10 @@
 package shared.enums;
 
 public enum OrderSlot {
-    S4_5,
-    S5_6,
-    S6_7,
-    S7_8,
-    S16_17,
-    S17_18,
+    SLOT_4,
+    SLOT_5,
+    SLOT_6,
+    SLOT_7,
+    SLOT_16,
+    SLOT_17,
 }

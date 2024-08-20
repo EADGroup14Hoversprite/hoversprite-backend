@@ -1,6 +1,6 @@
 package internal.dtos.response;
 
-import internal.dtos.OrderInfoDTO;
+import api.order.dtos.OrderInfoDTO;
 
 import java.util.List;
 

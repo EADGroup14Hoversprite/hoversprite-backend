@@ -1,6 +1,6 @@
 version: '3'
 services:
-    springboot-app:
+    hoversprite-app:
         image: hoversprite-backend
         container_name: hoversprite-backend
         ports:
