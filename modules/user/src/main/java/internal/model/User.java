@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import internal.dtos.UserAuthInfoDTO;
-import internal.dtos.UserInfoDTO;
+import internal.dtos.UserAuthInfoDTOImpl;
+import internal.dtos.UserInfoDTOImpl;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
@@ -48,9 +49,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private Boolean emailConfirmed;
-
     @Enumerated(EnumType.STRING)
     private Expertise expertise;
 
@@ -65,11 +63,11 @@ public class User {
     @Column(name = "updated_at")
     private LocalDate updatedAt;
 
-    public UserAuthInfoDTO toUserAuthInfoDto() {
-        return new UserAuthInfoDTO(id, password, userRole, authRole);
+    public UserAuthInfoDTOImpl toUserAuthInfoDto() {
+        return new UserAuthInfoDTOImpl(id, password, userRole, authRole);
     }
 
-    public UserInfoDTO toUserInfoDto() {
-        return new UserInfoDTO(id, fullName, phoneNumber, emailAddress, homeAddress, emailConfirmed, expertise, createdAt, updatedAt);
+    public UserInfoDTOImpl toUserInfoDto() {
+        return new UserInfoDTOImpl(id, fullName, phoneNumber, emailAddress, homeAddress,  expertise, createdAt, updatedAt);
     }
 }

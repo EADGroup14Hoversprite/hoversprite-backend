@@ -9,7 +9,7 @@ module auth {
     requires spring.web;
     requires common;
     requires user;
-    requires jwt;
+    requires security;
 
     exports api.auth;
 }

@@ -1,5 +1,8 @@
 package internal.model;
 
+import api.order.dtos.OrderInfoDTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
 import shared.enums.OrderStatus;
@@ -10,12 +13,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @Data
 @AllArgsConstructor
-public class Order {
+@NoArgsConstructor
+public class Order implements OrderInfoDTO {
     @Id
     @Column(name = "id", columnDefinition = "serial")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,7 +43,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private Long assignedSprayerId;
+    private List<Long> assignedSprayerIds;
+
+    private Integer session;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -47,4 +54,5 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDate updatedAt;
+
 }

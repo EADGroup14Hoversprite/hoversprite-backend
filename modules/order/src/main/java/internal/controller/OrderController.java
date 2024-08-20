@@ -1,8 +1,8 @@
 package internal.controller;
 
+import api.order.dtos.OrderInfoDTO;
 import internal.dtos.response.GetOrdersByFarmerIdResponseDTO;
-import internal.dtos.OrderInfoDTO;
-import shared.dtos.request.CreateOrderRequestDTO;
+import internal.dtos.request.CreateOrderRequestDTOImpl;
 import internal.dtos.response.CreateOrderResponseDTO;
 import internal.dtos.response.GetOrderResponseDTO;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import api.order.IOrderService;
+import api.order.OrderService;
 
 
 @Tag(name = "Order API")
@@ -21,22 +21,22 @@ import api.order.IOrderService;
 public class OrderController {
 
     @Autowired
-    private IOrderService orderService;
+    private OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<CreateOrderResponseDTO> createOrder(@RequestBody CreateOrderRequestDTO dto) {
+    ResponseEntity<CreateOrderResponseDTO> createOrder(@RequestBody CreateOrderRequestDTOImpl dto) {
         OrderInfoDTO infoDto = orderService.createOrder(dto);
         return new ResponseEntity<>(new CreateOrderResponseDTO(), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetOrderResponseDTO> getOrderById(@PathVariable Long id) {
+    ResponseEntity<GetOrderResponseDTO> getOrderById(@PathVariable Long id) {
         OrderInfoDTO infoDto = orderService.getOrderById(id);
         return new ResponseEntity<>(new GetOrderResponseDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/my-orders")
-    public ResponseEntity<GetOrdersByFarmerIdResponseDTO> getOrdersByFarmerId() {
+    ResponseEntity<GetOrdersByFarmerIdResponseDTO> getOrdersByFarmerId() {
         return new ResponseEntity<>(new GetOrdersByFarmerIdResponseDTO(), HttpStatus.OK);
     }
 }
