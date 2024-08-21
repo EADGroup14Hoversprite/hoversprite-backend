@@ -1,5 +1,7 @@
-package exception;
+package shared.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import shared.dtos.ErrorResponseDTO;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,11 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
@@ -67,5 +74,10 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponseDTO> handleBadRequestException(BadRequestException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(EntityNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

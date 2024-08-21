@@ -1,7 +1,6 @@
 package internal.model;
 
-import api.order.dtos.OrderInfoDTO;
-import lombok.Getter;
+import shared.dtos.order.OrderDTO;
 import lombok.NoArgsConstructor;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
@@ -20,10 +19,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order implements OrderInfoDTO {
+public class Order implements OrderDTO {
     @Id
-    @Column(name = "id", columnDefinition = "serial")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long farmerId;

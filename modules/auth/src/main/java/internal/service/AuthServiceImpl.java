@@ -1,15 +1,17 @@
 package internal.service;
 
-import api.auth.AuthService;
-import api.security.JwtService;
-import api.user.dtos.UserAuthInfoDTO;
-import api.user.UserService;
+import shared.dtos.auth.RegisterRequestDTO;
+import shared.dtos.auth.SignInRequestDTO;
+import shared.services.AuthService;
+import shared.services.JwtService;
+import shared.dtos.user.UserAuthInfoDTO;
+import shared.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import shared.dtos.RegisterRequestDTO;
-import shared.dtos.SignInRequestDTO;
+import internal.dtos.RegisterRequestDTOImpl;
+import internal.dtos.SignInRequestDTOImpl;
 
 @Service
 class AuthServiceImpl implements AuthService {
@@ -26,9 +28,10 @@ class AuthServiceImpl implements AuthService {
     @Override
     public String register(RegisterRequestDTO dto) throws Exception {
 
-        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        String encryptedPassword = passwordEncoder.encode(dto.getPassword());
+        RegisterRequestDTOImpl newDto = new RegisterRequestDTOImpl(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
 
-        return jwtService.generateToken(userService.createUser(dto));
+        return jwtService.generateToken(userService.createUser(newDto));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package internal.service;
 
-import api.security.JwtService;
-import api.user.dtos.UserAuthInfoDTO;
+import shared.services.JwtService;
+import shared.dtos.user.UserAuthInfoDTO;
 import shared.enums.AuthRole;
 import shared.enums.UserRole;
 import io.jsonwebtoken.Claims;
@@ -18,7 +18,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-public class JwtServiceImpl implements JwtService {
+class JwtServiceImpl implements JwtService {
     @Value("${security.jwt.secret}")
     private String secretKey;
 

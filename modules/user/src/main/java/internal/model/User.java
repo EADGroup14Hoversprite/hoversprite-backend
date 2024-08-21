@@ -1,14 +1,13 @@
 package internal.model;
 
+import internal.dtos.UserAuthInfoDTOImpl;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import internal.dtos.UserAuthInfoDTOImpl;
-import internal.dtos.UserInfoDTOImpl;
+import shared.dtos.user.UserDTO;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
@@ -21,7 +20,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User implements UserDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,9 +64,5 @@ public class User {
 
     public UserAuthInfoDTOImpl toUserAuthInfoDto() {
         return new UserAuthInfoDTOImpl(id, password, userRole, authRole);
-    }
-
-    public UserInfoDTOImpl toUserInfoDto() {
-        return new UserInfoDTOImpl(id, fullName, phoneNumber, emailAddress, homeAddress,  expertise, createdAt, updatedAt);
     }
 }
