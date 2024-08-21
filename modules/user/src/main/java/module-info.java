@@ -11,7 +11,5 @@ module user {
     requires spring.web;
     requires common;
     requires static lombok;
-
-    exports api.user;
-    exports api.user.dtos;
+    requires spring.tx;
 }

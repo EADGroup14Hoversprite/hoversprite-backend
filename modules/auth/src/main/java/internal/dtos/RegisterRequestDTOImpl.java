@@ -1,5 +1,6 @@
-package shared.dtos;
+package internal.dtos;
 
+import shared.dtos.auth.RegisterRequestDTO;
 import lombok.*;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
@@ -10,7 +11,7 @@ import shared.types.Location;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDTO {
+public class RegisterRequestDTOImpl implements RegisterRequestDTO {
 
     private String fullName;
 

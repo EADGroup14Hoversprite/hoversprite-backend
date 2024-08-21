@@ -18,8 +18,11 @@ module common {
     requires com.fasterxml.jackson.annotation;
 
     exports shared.enums;
-    exports exception;
     exports shared.types;
     exports shared.constants;
     exports shared.dtos;
+    exports shared.dtos.auth;
+    exports shared.dtos.order;
+    exports shared.dtos.user;
+    exports shared.services;
 }

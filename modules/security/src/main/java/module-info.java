@@ -12,7 +12,4 @@ module security {
     requires spring.security.crypto;
     requires spring.security.web;
     requires spring.web;
-    requires user;
-
-    exports api.security;
 }

@@ -1,6 +1,6 @@
-package internal.dtos.request;
+package internal.dtos;
 
-import api.order.dtos.CreateOrderRequestDTO;
+import shared.dtos.order.CreateOrderRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import shared.enums.CropType;
@@ -21,7 +21,5 @@ public class CreateOrderRequestDTOImpl implements CreateOrderRequestDTO {
 
     private LocalDate desiredDate;
 
-    private OrderSlot orderSlot;
-
-    private Integer session;
+    private OrderSlot timeSlot;
 }

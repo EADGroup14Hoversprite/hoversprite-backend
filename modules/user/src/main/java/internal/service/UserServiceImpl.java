@@ -1,17 +1,20 @@
 package internal.service;
 
+import internal.dtos.UserAuthInfoDTOImpl;
 import internal.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
+import shared.dtos.auth.RegisterRequestDTO;
 import internal.model.User;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
-import internal.dtos.UserAuthInfoDTOImpl;
-import internal.dtos.UserInfoDTOImpl;
-import shared.dtos.RegisterRequestDTO;
+import shared.dtos.user.UserDTO;
 import shared.enums.AuthRole;
 import shared.enums.UserRole;
-import api.user.UserService;
+import shared.services.UserService;
 
 import java.sql.SQLException;
 
@@ -24,11 +27,11 @@ class UserServiceImpl implements UserService {
     @Override
     public UserAuthInfoDTOImpl createUser(RegisterRequestDTO dto) throws Exception {
         if (userRepository.findByEmailAddress(dto.getEmailAddress()).isPresent()) {
-            throw new SQLException("This email has already been registered");
+            throw new DataIntegrityViolationException("This email has already been registered");
         }
 
         if (userRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
-            throw new SQLException("This phone number has already been registered");
+            throw new DataIntegrityViolationException("This phone number has already been registered");
         }
 
         if (!dto.getUserRole().equals(UserRole.ROLE_SPRAYER) && dto.getExpertise() != null) {
@@ -41,16 +44,15 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoDTOImpl getUserInfoById(Long id) throws Exception {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("internal.User with this id does not exists"));
-        return user.toUserInfoDto();
+    public UserDTO getUserInfoById(Long id) throws Exception {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with this id does not exists"));
     }
 
     @Override
     public UserAuthInfoDTOImpl getUserAuthInfoById(Long id) throws Exception {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("internal.User with this id does not exists"));
+                .orElseThrow(() -> new EntityNotFoundException("User with this id does not exists"));
         return user.toUserAuthInfoDto();
     }
 
@@ -58,7 +60,7 @@ class UserServiceImpl implements UserService {
     public UserAuthInfoDTOImpl getUserByEmailAddressOrPhoneNumber(String emailOrPhone) throws Exception {
         User user = userRepository.findByEmailAddress(emailOrPhone)
                 .or(() -> userRepository.findByPhoneNumber(emailOrPhone))
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("internal.User with this email address or phone number does not exists"));
+                .orElseThrow(() -> new EntityNotFoundException("User with this email address or phone number does not exists"));
         return user.toUserAuthInfoDto();
     }
 

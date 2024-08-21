@@ -1,11 +1,11 @@
-package api.user.dtos;
+package shared.dtos.user;
 
 import shared.enums.Expertise;
 import shared.types.Location;
 
 import java.time.LocalDate;
 
-public interface UserInfoDTO {
+public interface UserDTO {
 
     Long getId();
 

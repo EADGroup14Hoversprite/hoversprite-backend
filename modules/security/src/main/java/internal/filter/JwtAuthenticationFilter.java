@@ -1,6 +1,6 @@
 package internal.filter;
 
-import api.security.JwtService;
+import shared.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

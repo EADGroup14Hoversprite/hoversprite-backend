@@ -1,6 +1,6 @@
 package internal.service;
 
-import api.user.UserService;
+import shared.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

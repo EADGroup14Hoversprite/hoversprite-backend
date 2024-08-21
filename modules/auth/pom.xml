@@ -20,13 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>enterprise</groupId>
-            <artifactId>user</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>enterprise</groupId>
-            <artifactId>security</artifactId>
+            <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

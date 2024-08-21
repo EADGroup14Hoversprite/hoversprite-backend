@@ -1,7 +1,7 @@
-package api.auth;
+package shared.services;
 
-import shared.dtos.RegisterRequestDTO;
-import shared.dtos.SignInRequestDTO;
+import shared.dtos.auth.RegisterRequestDTO;
+import shared.dtos.auth.SignInRequestDTO;
 
 public interface AuthService {
     String register(RegisterRequestDTO dto) throws Exception;

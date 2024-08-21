@@ -8,8 +8,4 @@ module auth {
     requires spring.security.crypto;
     requires spring.web;
     requires common;
-    requires user;
-    requires security;
-
-    exports api.auth;
 }

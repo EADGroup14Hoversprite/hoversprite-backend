@@ -1,9 +1,9 @@
-package api.security;
+package shared.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.enums.AuthRole;
 import shared.enums.UserRole;
-import api.user.dtos.UserAuthInfoDTO;
+import shared.dtos.user.UserAuthInfoDTO;
 
 public interface JwtService {
     String generateToken(UserAuthInfoDTO dto);

@@ -1,6 +1,6 @@
 package internal.dtos;
 
-import api.user.dtos.UserAuthInfoDTO;
+import shared.dtos.user.UserAuthInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import shared.enums.AuthRole;

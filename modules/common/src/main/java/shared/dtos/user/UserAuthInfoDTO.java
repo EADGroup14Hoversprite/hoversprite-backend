@@ -1,4 +1,4 @@
-package api.user.dtos;
+package shared.dtos.user;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.enums.AuthRole;

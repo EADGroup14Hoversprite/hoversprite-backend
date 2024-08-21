@@ -1,6 +1,5 @@
-package api.order.dtos;
+package shared.dtos.order;
 
-import lombok.AllArgsConstructor;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
 import shared.enums.OrderStatus;
@@ -8,7 +7,7 @@ import shared.enums.OrderStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface OrderInfoDTO {
+public interface OrderDTO {
     Long getId();
 
     Long getFarmerId();
