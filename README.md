@@ -15,7 +15,7 @@ Run init_windows.bat
 In the project root directory, open the terminal and type the following:
 
 ```shell
-sudo sh ./init_linux.sh
+sudo sh init_linux.sh
 ```
 
 ## Documentation
