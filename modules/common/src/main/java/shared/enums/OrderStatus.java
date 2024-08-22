@@ -6,5 +6,6 @@ public enum OrderStatus {
     CONFIRMED,
     ASSIGNED,
     IN_PROGRESS,
+    FINISHED,
     COMPLETED
 }
