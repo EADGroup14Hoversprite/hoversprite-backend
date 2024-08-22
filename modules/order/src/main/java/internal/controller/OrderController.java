@@ -30,11 +30,19 @@ class OrderController {
         return new ResponseEntity<>(new CreateOrderResponseDTO(orderDto == null ? "This time slot is full": "Order created successfully", orderDto), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/{id}/update-status")
+    ResponseEntity<UpdateOrderStatusResponseDTO> updateOrderStatus(@PathVariable Long id, @RequestBody UpdateOrderStatusRequestDTOImpl dto) throws Exception {
+        OrderDTO orderDto = orderService.updateOrderStatus(id, dto);
+        return new ResponseEntity<>(new UpdateOrderStatusResponseDTO("Order confirmed successfully", orderDto), HttpStatus.OK);
+    }
+
+
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
-    @PostMapping("/{id}/confirm")
-    ResponseEntity<ConfirmOrderResponseDTO> confirmOrder(@PathVariable Long id) throws Exception {
-        OrderDTO orderDto = orderService.confirmOrder(id);
-        return new ResponseEntity<>(new ConfirmOrderResponseDTO("Order confirmed successfully", orderDto), HttpStatus.OK);
+    @PostMapping("/{id}/assign-sprayer")
+    ResponseEntity<AssignSprayerResponseDTO> assignSprayer(@PathVariable Long id, @RequestBody AssignSprayerRequestDTOImpl dto) throws Exception {
+        OrderDTO orderDto = orderService.assignSprayer(id, dto);
+        return new ResponseEntity<>(new AssignSprayerResponseDTO("Assigned sprayers to order successfully", orderDto), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER', 'ADMIN)")
@@ -50,5 +58,6 @@ class OrderController {
         List<OrderDTO> orderDtos = orderService.getOrdersByFarmerId();
         return new ResponseEntity<>(new GetOrdersByFarmerIdResponseDTO("Orders retrieved successfully", orderDtos), HttpStatus.OK);
     }
+
 
 }

@@ -11,4 +11,5 @@ module order {
     requires com.fasterxml.jackson.annotation;
     requires spring.security.core;
     requires spring.data.commons;
+    requires spring.tx;
 }

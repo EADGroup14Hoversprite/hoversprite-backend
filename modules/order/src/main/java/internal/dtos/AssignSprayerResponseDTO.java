@@ -6,7 +6,7 @@ import shared.dtos.order.OrderDTO;
 
 @Data
 @AllArgsConstructor
-public class ConfirmOrderResponseDTO {
+public class AssignSprayerResponseDTO {
 
     private String message;
 
