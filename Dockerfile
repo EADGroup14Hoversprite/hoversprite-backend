@@ -1,4 +1,5 @@
-FROM maven:3.8.7-openjdk-22
+FROM openjdk:22-jdk-buster
+RUN apt-get update && apt-get install -y maven
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
