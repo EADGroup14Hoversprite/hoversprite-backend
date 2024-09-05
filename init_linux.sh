@@ -2,6 +2,29 @@
 
 # RUN THIS FILE TO START THE SERVER ON LINUX
 
+## This section will export all the environment variables necessary to build the JAR file
+
+export POSTGRES_DB=hoversprite
+export POSTGRES_USER=hoversprite_admin
+export POSTGRES_PASSWORD=enterprisehd
+
+export SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/hoversprite
+export SPRING_DATASOURCE_USERNAME=hoversprite_admin
+export SPRING_DATASOURCE_PASSWORD=enterprisehd
+
+echo "Environment variables set."
+
+## This section will build the JAR file
+
+echo "Building JAR file..."
+mvn clean package
+
+if [ $? -eq 0 ]; then
+    echo "JAR file built successfully"
+else
+    echo "Failed to build JAR file. Please try again."
+fi
+
 ## This section will pull the postgres official Docker image if it does not exist on the machine
 echo "Checking for PostgreSQL Docker image..."
 if [[ "$(docker images -q postgres:latest 2>/dev/null)" == "" ]]; then
