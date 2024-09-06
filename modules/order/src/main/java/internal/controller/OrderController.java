@@ -45,7 +45,7 @@ class OrderController {
         return new ResponseEntity<>(new AssignSprayerResponseDTO("Assigned sprayers to order successfully", orderDto), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER', 'ADMIN)")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
     ResponseEntity<GetOrderResponseDTO> getOrderById(@PathVariable Long id) throws Exception {
         OrderDTO orderDto = orderService.getOrderById(id);
