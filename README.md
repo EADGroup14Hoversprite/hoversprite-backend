@@ -1,6 +1,6 @@
 ## Requirements
 
-Make sure you have Maven, Docker, Docker Compose, OpenJDK22 installed on your machine.
+Make sure you have Maven, OpenJDK22, Docker, Docker Compose installed on your machine.
 
 Make sure the Docker daemon is running.
 
