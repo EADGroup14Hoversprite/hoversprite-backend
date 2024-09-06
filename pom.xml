@@ -24,6 +24,8 @@
     <modules>
         <module>main</module>
         <module>modules</module>
+        <module>modules/email</module>
+        <module>modules/feedback</module>
     </modules>
     <scm>
         <connection/>
