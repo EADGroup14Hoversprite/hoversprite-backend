@@ -1,7 +1,8 @@
 package internal.controller;
 
-import shared.services.AuthService;
 import internal.dtos.AuthResponseDTO;
+import shared.dtos.auth.AuthDTO;
+import shared.services.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,14 +24,14 @@ public class AuthController {
 
     @PostMapping("/register")
     ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTOImpl dto) throws Exception {
-        String token = authService.register(dto);
-        return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", token), HttpStatus.CREATED);
+        AuthDTO authDto = authService.register(dto);
+        return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", authDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")
     ResponseEntity<AuthResponseDTO> signIn(@RequestBody SignInRequestDTOImpl dto) throws Exception {
-        String token = authService.signIn(dto);
-        return new ResponseEntity<>(new AuthResponseDTO("User signed in successfully", token), HttpStatus.CREATED);
+        AuthDTO authDTO = authService.signIn(dto);
+        return new ResponseEntity<>(new AuthResponseDTO("User signed in successfully", authDTO), HttpStatus.CREATED);
     }
 
 }

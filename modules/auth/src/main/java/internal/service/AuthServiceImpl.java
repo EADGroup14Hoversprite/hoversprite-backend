@@ -1,17 +1,17 @@
 package internal.service;
 
+import internal.dtos.AuthDTOImpl;
 import shared.dtos.auth.RegisterRequestDTO;
 import shared.dtos.auth.SignInRequestDTO;
+import shared.dtos.user.UserDTO;
 import shared.services.AuthService;
 import shared.services.JwtService;
-import shared.dtos.user.UserAuthInfoDTO;
 import shared.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import internal.dtos.RegisterRequestDTOImpl;
-import internal.dtos.SignInRequestDTOImpl;
 
 @Service
 class AuthServiceImpl implements AuthService {
@@ -26,24 +26,25 @@ class AuthServiceImpl implements AuthService {
     private JwtService jwtService;
 
     @Override
-    public String register(RegisterRequestDTO dto) throws Exception {
+    public AuthDTOImpl register(RegisterRequestDTO dto) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(dto.getPassword());
         RegisterRequestDTOImpl newDto = new RegisterRequestDTOImpl(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
+        UserDTO newUserDto = userService.createUser(newDto);
 
-        return jwtService.generateToken(userService.createUser(newDto));
+        return new AuthDTOImpl(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getHomeAddress(), newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
     }
 
     @Override
-    public String signIn(SignInRequestDTO dto) throws Exception {
+    public AuthDTOImpl signIn(SignInRequestDTO dto) throws Exception {
 
-        UserAuthInfoDTO authDto = userService.getUserByEmailAddressOrPhoneNumber(dto.getEmailOrPhone());
+        UserDTO userDto = userService.getUserByEmailAddressOrPhoneNumber(dto.getEmailOrPhone());
 
-        if (!passwordEncoder.matches(dto.getPassword(), authDto.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), userDto.getPassword())) {
             throw new BadCredentialsException("Invalid password.");
         }
 
-        return jwtService.generateToken(authDto);
+        return new AuthDTOImpl(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
     }
 
     @Override
