@@ -1,21 +1,6 @@
 @echo off
 echo RUN THIS FILE TO START THE SERVER ON WINDOWS
 
-:: This section will set all the environment variables necessary to build the JAR file
-set POSTGRES_DB=hoversprite
-set POSTGRES_USER=hoversprite_admin
-set POSTGRES_PASSWORD=enterprisehd
-
-set SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/hoversprite
-set SPRING_DATASOURCE_USERNAME=hoversprite_admin
-set SPRING_DATASOURCE_PASSWORD=enterprisehd
-
-echo Environment variables set.
-
-:: This section will build the JAR file
-echo Building JAR file...
-call mvn clean package
-
 :: Check if Maven build was successful
 if %errorlevel% equ 0 (
     echo JAR file built successfully
@@ -49,4 +34,3 @@ docker build -t hoversprite-backend:latest .
 :: This section will start docker-compose
 echo Starting Docker Compose...
 docker-compose up
-pause
