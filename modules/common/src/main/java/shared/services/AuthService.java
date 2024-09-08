@@ -1,12 +1,13 @@
 package shared.services;
 
+import shared.dtos.auth.AuthDTO;
 import shared.dtos.auth.RegisterRequestDTO;
 import shared.dtos.auth.SignInRequestDTO;
 
 public interface AuthService {
-    String register(RegisterRequestDTO dto) throws Exception;
+    AuthDTO register(RegisterRequestDTO dto) throws Exception;
 
-    String signIn(SignInRequestDTO dto) throws Exception;
+    AuthDTO signIn(SignInRequestDTO dto) throws Exception;
 
     Boolean emailConfirmation(String id);
 

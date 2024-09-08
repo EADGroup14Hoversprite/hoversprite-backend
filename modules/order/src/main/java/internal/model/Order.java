@@ -24,18 +24,24 @@ public class Order implements OrderDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long farmerId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CropType cropType;
 
+    @Column(nullable = false)
     private Float farmlandArea;
 
+    @Column(nullable = false)
     private LocalDate desiredDate;
 
+    @Column(nullable = false)
     private Float totalCost;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderSlot timeSlot;
 
     @Enumerated(EnumType.STRING)

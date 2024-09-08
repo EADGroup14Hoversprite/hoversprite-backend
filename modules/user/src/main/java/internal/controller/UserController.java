@@ -23,7 +23,7 @@ class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     ResponseEntity<GetUserResponseDTO> getUserById(@PathVariable Long id) throws Exception {
-        UserDTO dto = userService.getUserInfoById(id);
+        UserDTO dto = userService.getUserById(id);
         return new ResponseEntity<>(new GetUserResponseDTO("User data found", dto), HttpStatus.OK);
     }
 

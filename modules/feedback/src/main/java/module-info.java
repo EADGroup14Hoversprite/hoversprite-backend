@@ -4,4 +4,6 @@ module feedback {
     requires spring.beans;
     requires spring.web;
     requires spring.security.core;
+    requires jakarta.persistence;
+    requires static lombok;
 }

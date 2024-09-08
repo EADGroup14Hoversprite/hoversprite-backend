@@ -24,8 +24,6 @@
     <modules>
         <module>main</module>
         <module>modules</module>
-        <module>modules/email</module>
-        <module>modules/feedback</module>
     </modules>
     <scm>
         <connection/>
@@ -78,7 +76,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -111,7 +109,7 @@
             <dependency>
                 <groupId>org.springframework.modulith</groupId>
                 <artifactId>spring-modulith-bom</artifactId>
-                <version>${spring-modulith.version}</version>
+                <version>1.2.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
