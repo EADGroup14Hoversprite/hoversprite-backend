@@ -25,4 +25,5 @@ module common {
     exports shared.dtos.order;
     exports shared.dtos.user;
     exports shared.services;
+    exports shared.dtos.feedback;
 }

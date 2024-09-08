@@ -34,7 +34,7 @@ class OrderController {
     @PostMapping("/{id}/update-status")
     ResponseEntity<UpdateOrderStatusResponseDTO> updateOrderStatus(@PathVariable Long id, @RequestBody UpdateOrderStatusRequestDTOImpl dto) throws Exception {
         OrderDTO orderDto = orderService.updateOrderStatus(id, dto);
-        return new ResponseEntity<>(new UpdateOrderStatusResponseDTO("Order confirmed successfully", orderDto), HttpStatus.OK);
+        return new ResponseEntity<>(new UpdateOrderStatusResponseDTO("Order status successfully set to " + orderDto.getStatus(), orderDto), HttpStatus.OK);
     }
 
 
@@ -45,7 +45,7 @@ class OrderController {
         return new ResponseEntity<>(new AssignSprayerResponseDTO("Assigned sprayers to order successfully", orderDto), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER', 'ADMIN)")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
     ResponseEntity<GetOrderResponseDTO> getOrderById(@PathVariable Long id) throws Exception {
         OrderDTO orderDto = orderService.getOrderById(id);

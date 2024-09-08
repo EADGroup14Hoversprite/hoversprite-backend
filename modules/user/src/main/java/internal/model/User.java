@@ -1,12 +1,13 @@
 package internal.model;
 
-import internal.dtos.UserAuthInfoDTOImpl;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import shared.dtos.user.UserDTO;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
@@ -14,6 +15,8 @@ import shared.enums.UserRole;
 import shared.types.Location;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -62,7 +65,18 @@ public class User implements UserDTO {
     @Column(name = "updated_at")
     private LocalDate updatedAt;
 
-    public UserAuthInfoDTOImpl toUserAuthInfoDto() {
-        return new UserAuthInfoDTOImpl(id, password, userRole, authRole);
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(authRole.name()), new SimpleGrantedAuthority(userRole.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return String.valueOf(id);
     }
 }

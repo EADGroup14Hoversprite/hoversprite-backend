@@ -9,9 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "internal.repository")
 @EntityScan(basePackages = "internal.model")
 public class HoverspriteApplication {
-
   public static void main(String[] args) {
     SpringApplication.run(HoverspriteApplication.class, args);
   }
-
 }

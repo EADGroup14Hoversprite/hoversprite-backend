@@ -7,25 +7,23 @@
         <groupId>enterprise</groupId>
         <artifactId>hoversprite</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>modules</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>feedback</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <modules>
-        <module>auth</module>
-        <module>common</module>
-        <module>security</module>
-        <module>user</module>
-        <module>order</module>
-        <module>email</module>
-        <module>feedback</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>enterprise</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>
