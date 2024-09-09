@@ -2,12 +2,13 @@ package internal.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import shared.dtos.order.OrderDTO;
+import shared.dtos.OrderDto;
 
 @Data
 @AllArgsConstructor
-public class GetOrderResponseDTO {
+public class CreateOrderResponseDto {
+
     private String message;
 
-    private OrderDTO order;
+    private OrderDto order;
 }

@@ -8,7 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import shared.dtos.user.UserDTO;
+import shared.dtos.UserDto;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDTO {
+public class User implements UserDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

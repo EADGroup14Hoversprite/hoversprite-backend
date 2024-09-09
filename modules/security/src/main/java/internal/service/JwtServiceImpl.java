@@ -1,6 +1,6 @@
 package internal.service;
 
-import shared.dtos.user.UserDTO;
+import shared.dtos.UserDto;
 import shared.services.JwtService;
 import shared.enums.AuthRole;
 import shared.enums.UserRole;
@@ -35,7 +35,7 @@ class JwtServiceImpl implements JwtService {
     }
 
 
-    public String generateToken(UserDTO dto) {
+    public String generateToken(UserDto dto) {
         Claims claims = new DefaultClaims();
         claims.put("authRole", dto.getAuthRole());
         claims.put("userRole", dto.getUserRole());

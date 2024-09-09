@@ -1,6 +1,6 @@
 services:
     hoversprite-app:
-        image: hoversprite-backend
+        image: phucdoan2003/hoversprite-backend
         container_name: hoversprite-backend
         ports:
             - "8080:8080"

@@ -1,4 +1,4 @@
-package shared.dtos.user;
+package shared.dtos;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.enums.AuthRole;
@@ -8,7 +8,7 @@ import shared.types.Location;
 
 import java.time.LocalDate;
 
-public interface UserDTO extends UserDetails {
+public interface UserDto extends UserDetails {
 
     Long getId();
 
