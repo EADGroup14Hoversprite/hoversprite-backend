@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shared.dtos.FeedbackDto;
 import shared.enums.FeedbackSatisfactionRating;
 
 @Entity
@@ -11,7 +12,7 @@ import shared.enums.FeedbackSatisfactionRating;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Feedback {
+public class Feedback implements FeedbackDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

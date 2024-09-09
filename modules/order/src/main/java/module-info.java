@@ -8,8 +8,9 @@ module order {
     requires spring.data.jpa;
     requires spring.web;
     requires common;
-    requires com.fasterxml.jackson.annotation;
     requires spring.security.core;
     requires spring.data.commons;
     requires spring.tx;
+    requires com.fasterxml.jackson.databind;
+    requires jakarta.validation;
 }

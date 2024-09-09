@@ -1,6 +1,7 @@
 package internal.controller;
 
 import internal.dtos.*;
+import internal.service.OrderServiceImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
 import shared.dtos.OrderDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,7 +22,7 @@ import java.util.List;
 class OrderController {
 
     @Autowired
-    private OrderService orderService;
+    private OrderServiceImpl orderService;
 
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @PostMapping("/create")

@@ -1,5 +1,6 @@
 package internal.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import shared.dtos.OrderDto;
 import lombok.NoArgsConstructor;
 import shared.enums.CropType;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import shared.serializer.LocalDateToEpochSerializer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,6 +37,7 @@ public class Order implements OrderDto {
     private Float farmlandArea;
 
     @Column(nullable = false)
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate desiredDate;
 
     @Column(nullable = false)
@@ -54,10 +57,12 @@ public class Order implements OrderDto {
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate updatedAt;
 
 }

@@ -1,6 +1,7 @@
 package internal.controller;
 
 import internal.dtos.GetUserResponseDto;
+import internal.service.UserServiceImpl;
 import shared.dtos.UserDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import shared.services.UserService;
 
 @Tag(name = "User API")
 @SecurityRequirement(name = "bearerAuth")
@@ -18,7 +18,7 @@ import shared.services.UserService;
 class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
