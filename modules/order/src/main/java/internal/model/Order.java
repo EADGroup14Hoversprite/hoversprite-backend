@@ -1,6 +1,6 @@
 package internal.model;
 
-import shared.dtos.order.OrderDTO;
+import shared.dtos.OrderDto;
 import lombok.NoArgsConstructor;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order implements OrderDTO {
+public class Order implements OrderDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,6 +47,7 @@ public class Order implements OrderDTO {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @ElementCollection
     private List<Long> assignedSprayerIds;
 
     private Integer session;

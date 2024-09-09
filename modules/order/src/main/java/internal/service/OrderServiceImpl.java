@@ -10,29 +10,28 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.constants.Constants;
-import shared.dtos.order.AssignSprayerRequestDTO;
-import shared.dtos.order.UpdateOrderStatusRequestDTO;
+import shared.enums.CropType;
+import shared.enums.OrderSlot;
 import shared.enums.OrderStatus;
 import shared.enums.UserRole;
 import shared.services.OrderService;
-import shared.dtos.order.CreateOrderRequestDTO;
-import shared.dtos.order.OrderDTO;
+import shared.dtos.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
 
-    @Override
-    public OrderDTO createOrder(CreateOrderRequestDTO dto) {
+    public OrderDto createOrder(Long farmerId, CropType cropType, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) {
         int sessionNum = 1;
-        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(dto.getDesiredDate(), dto.getTimeSlot());
+        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
         if (numOrders == 2) {
             throw new IllegalStateException("The maximum order for this time slot has been reached");
@@ -42,39 +41,39 @@ class OrderServiceImpl implements OrderService {
 
         Order order;
 
-        if (dto.getFarmerId() == null) {
+        if (farmerId == null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated()) {
                 throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
             }
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, dto.getCropType(), dto.getFarmlandArea(), dto.getDesiredDate(),  Constants.UNIT_COST * dto.getFarmlandArea(), dto.getTimeSlot(), OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, currentUserId, cropType, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         } else {
-            order = new Order(null, dto.getFarmerId(), dto.getCropType(), dto.getFarmlandArea(), dto.getDesiredDate(),  Constants.UNIT_COST * dto.getFarmlandArea(), dto.getTimeSlot(), OrderStatus.CONFIRMED, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, farmerId, cropType, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         }
         return orderRepository.save(order);
     }
 
     @Override
-    public OrderDTO getOrderById(Long id) {
+    public OrderDto getOrderById(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
     }
 
     @Override
-    public List<OrderDTO> getOrdersByFarmerId() throws Exception {
+    public List<OrderDto> getOrdersByFarmerId() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
         }
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        return orderRepository.getOrdersByFarmerId(currentUserId).stream().map(entity -> (OrderDTO) entity).toList();
+        return orderRepository.getOrdersByFarmerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
     }
 
     @Override
-    public OrderDTO updateOrderStatus(Long id, UpdateOrderStatusRequestDTO dto) throws Exception {
+    public OrderDto updateOrderStatus(Long id, OrderStatus status) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
@@ -83,7 +82,7 @@ class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
 
-        if(dto.getStatus() == OrderStatus.CONFIRMED) {
+        if(status == OrderStatus.CONFIRMED) {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only receptionists are allowed to confirm an order");
             }
@@ -92,7 +91,7 @@ class OrderServiceImpl implements OrderService {
             }
         }
 
-        if(dto.getStatus() == OrderStatus.IN_PROGRESS) {
+        if(status == OrderStatus.IN_PROGRESS) {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_SPRAYER.name()))) {
                 throw new AccessDeniedException("Only sprayers are allowed to start the spraying process of an order.");
             }
@@ -104,7 +103,7 @@ class OrderServiceImpl implements OrderService {
             }
         }
 
-        if(dto.getStatus() == OrderStatus.FINISHED) {
+        if(status == OrderStatus.FINISHED) {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name()))) {
                 throw new AccessDeniedException("Only farmers are allowed to confirmed that the spraying session is finished.");
             }
@@ -116,7 +115,7 @@ class OrderServiceImpl implements OrderService {
             }
         }
 
-        if(dto.getStatus() == OrderStatus.COMPLETED) {
+        if(status == OrderStatus.COMPLETED) {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only sprayers are allowed to complete an order an order.");
             }
@@ -129,15 +128,15 @@ class OrderServiceImpl implements OrderService {
             }
         }
 
-        order.setStatus(dto.getStatus());
+        order.setStatus(status);
         return orderRepository.save(order);
     }
 
     @Override
-    public OrderDTO assignSprayer(Long id, AssignSprayerRequestDTO dto) throws Exception {
+    public OrderDto assignSprayer(Long id, List<Long> sprayerIds) throws Exception {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
-        order.setAssignedSprayerIds(dto.getSprayerIds());
+        order.setAssignedSprayerIds(sprayerIds);
         order.setStatus(OrderStatus.ASSIGNED);
         return orderRepository.save(order);
     }

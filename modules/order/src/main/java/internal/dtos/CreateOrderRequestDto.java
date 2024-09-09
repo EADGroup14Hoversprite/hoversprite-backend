@@ -1,6 +1,5 @@
 package internal.dtos;
 
-import shared.dtos.order.CreateOrderRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import shared.enums.CropType;
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class CreateOrderRequestDTOImpl implements CreateOrderRequestDTO {
+public class CreateOrderRequestDto {
 
     //null if farmer is sending request
     private Long farmerId;

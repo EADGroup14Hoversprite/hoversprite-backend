@@ -1,30 +1,32 @@
-@echo off
-REM RUN THIS FILE TO START THE SERVER ON WINDOWS
+#!/bin/bash
 
-REM Check if PostgreSQL Docker image exists
-echo Checking for PostgreSQL Docker image...
-docker images -q postgres:latest > nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo PostgreSQL image not found. Pulling from Docker Hub...
-    docker pull postgres:latest
-    if %ERRORLEVEL% EQU 0 (
-        echo PostgreSQL image pulled successfully.
-    ) else (
-        echo Failed to pull PostgreSQL image. Exiting.
-        exit /b 1
-    )
-) else (
-    echo PostgreSQL image already exists.
-)
+# RUN THIS FILE TO PULL IMAGES AND RUN THE SPRING BOOT APP USING DOCKER COMPOSE
 
-REM Build the Hoversprite Docker image
-echo Building the Spring Boot Docker image...
-docker build -t hoversprite-backend:latest .
-if %ERRORLEVEL% NEQ 0 (
-    echo Failed to build Spring Boot Docker image. Exiting.
-    exit /b 1
-)
+# Define variables
+DOCKER_COMPOSE_FILE="docker-compose.yml"
 
-REM Start Docker Compose
-echo Starting Docker Compose...
-docker-compose up
+# Pull the latest Docker images for all services in the docker-compose file
+echo "Pulling the latest images for all services..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} pull
+
+if [ $? -ne 0 ]; then
+  echo "Failed to pull images. Exiting."
+  exit 1
+fi
+
+# Check if any containers with the same name are already running and stop them
+echo "Stopping any existing containers..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} down
+
+# Run the Docker Compose file to start the services
+echo "Starting the services with Docker Compose..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+
+if [ $? -ne 0 ]; then
+  echo "Failed to start the services. Exiting."
+  exit 1
+fi
+
+# Check the logs for the application container
+echo "Showing logs for the Spring Boot application..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} logs -f hoversprite-app
