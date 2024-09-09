@@ -6,4 +6,6 @@ module feedback {
     requires spring.security.core;
     requires jakarta.persistence;
     requires static lombok;
+    requires spring.context;
+    requires spring.data.jpa;
 }

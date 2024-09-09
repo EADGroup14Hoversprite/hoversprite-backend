@@ -1,5 +1,6 @@
 package internal.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import shared.dtos.UserDto;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
+import shared.serializer.LocalDateToEpochSerializer;
 import shared.types.Location;
 
 import java.time.LocalDate;
@@ -59,10 +61,12 @@ public class User implements UserDto {
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate updatedAt;
 
     @Override

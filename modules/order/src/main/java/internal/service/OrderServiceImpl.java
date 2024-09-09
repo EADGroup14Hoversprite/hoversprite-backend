@@ -10,14 +10,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.constants.Constants;
+import shared.dtos.UserDto;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
 import shared.enums.OrderStatus;
 import shared.enums.UserRole;
+import shared.services.EmailService;
 import shared.services.OrderService;
 import shared.dtos.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shared.services.UserService;
+import shared.types.LunarDate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,7 +33,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public OrderDto createOrder(Long farmerId, CropType cropType, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) {
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserService userService;
+
+    public OrderDto createOrder(Long farmerId, CropType cropType, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
         int sessionNum = 1;
         Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
@@ -52,7 +62,25 @@ public class OrderServiceImpl implements OrderService {
         } else {
             order = new Order(null, farmerId, cropType, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         }
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        UserDto user = userService.getUserById(order.getFarmerId());
+
+        emailService.sendEmail(user.getEmailAddress(), "Order Creation",
+            "Hello, " + user.getFullName() + "!\n" +
+                    "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
+                    "Below is the details of your order: \n" +
+                    "Order ID: " + savedOrder.getId() + "\n" +
+                    "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
+                    "Crop Type: " + savedOrder.getCropType() + "\n" +
+                    "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
+                    "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
+                    "Total Cost: " + savedOrder.getTotalCost() + "\n" +
+                    "Time slot" + savedOrder.getTimeSlot().toString() + "\n" +
+                    "Status: " + savedOrder.getStatus() + "\n" +
+                    "Session: " + savedOrder.getSession() + "\n" +
+                    "Created At: " + savedOrder.getCreatedAt() + "\n"
+                );
+        return savedOrder;
     }
 
     @Override
@@ -69,7 +97,9 @@ public class OrderServiceImpl implements OrderService {
         }
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        return orderRepository.getOrdersByFarmerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
+        List<OrderDto> orderDtos = orderRepository.findAllByFarmerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
+        System.out.println(orderDtos);
+        return orderDtos;
     }
 
     @Override
@@ -89,6 +119,9 @@ public class OrderServiceImpl implements OrderService {
             if (order.getStatus() != OrderStatus.PENDING) {
                 throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
             }
+            UserDto user = userService.getUserById(order.getFarmerId());
+
+            emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been confirmed and we are looking for suitable sprayers to assign");
         }
 
         if(status == OrderStatus.IN_PROGRESS) {
@@ -108,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new AccessDeniedException("Only farmers are allowed to confirmed that the spraying session is finished.");
             }
             if (Long.parseLong(userDetails.getUsername()) != order.getFarmerId()) {
-                throw new AccessDeniedException("You are not the farmer associated with this order. You are not allowed to mark it as finished.");
+                throw new AccessDeniedException("You are not the booker associated with this order. You are not allowed to mark it as finished.");
             }
             if (order.getStatus() != OrderStatus.ASSIGNED) {
                 throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only start an assigned orders.");
@@ -138,7 +171,31 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
         order.setAssignedSprayerIds(sprayerIds);
         order.setStatus(OrderStatus.ASSIGNED);
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        UserDto user = userService.getUserById(order.getFarmerId());
+
+
+        List<UserDto> sprayers = sprayerIds.stream().map(sprayerId -> {
+            try {
+                return userService.getUserById(sprayerId);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: " + sprayers.stream().map(sprayer -> sprayer.getFullName() + " ") );
+
+        sprayers.stream().map(sprayer -> {
+            emailService.sendEmail(sprayer.getEmailAddress(), "Order Assign",
+                    "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
+                            "Farmer Information: \n" +
+                            "Full name: " + user.getFullName() + "\n" +
+                            "Location: " + user.getHomeAddress() + "\n" +
+                            "Phone Number: " + user.getPhoneNumber()
+            );
+            return null;
+        });
+        return savedOrder;
     }
 
 
