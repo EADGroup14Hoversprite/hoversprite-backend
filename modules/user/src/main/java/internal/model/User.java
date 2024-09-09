@@ -1,5 +1,6 @@
 package internal.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,10 +9,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import shared.dtos.user.UserDTO;
+import shared.dtos.UserDto;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
+import shared.serializer.LocalDateToEpochSerializer;
 import shared.types.Location;
 
 import java.time.LocalDate;
@@ -23,7 +25,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDTO {
+public class User implements UserDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,10 +61,12 @@ public class User implements UserDTO {
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate updatedAt;
 
     @Override

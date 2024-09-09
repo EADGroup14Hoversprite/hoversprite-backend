@@ -1,21 +1,17 @@
 package shared.services;
 
 
-import shared.dtos.order.AssignSprayerRequestDTO;
-import shared.dtos.order.CreateOrderRequestDTO;
-import shared.dtos.order.OrderDTO;
-import shared.dtos.order.UpdateOrderStatusRequestDTO;
+import shared.dtos.OrderDto;
+import shared.enums.OrderStatus;
 
 import java.util.List;
 
 public interface OrderService {
-    OrderDTO createOrder(CreateOrderRequestDTO dto) throws Exception;
+    OrderDto getOrderById(Long id) throws Exception;
 
-    OrderDTO getOrderById(Long id) throws Exception;
+    List<OrderDto> getOrdersByFarmerId() throws Exception;
 
-    List<OrderDTO> getOrdersByFarmerId() throws Exception;
+    OrderDto updateOrderStatus(Long id, OrderStatus status) throws Exception;
 
-    OrderDTO updateOrderStatus(Long id, UpdateOrderStatusRequestDTO dto) throws Exception;
-
-    OrderDTO assignSprayer(Long id, AssignSprayerRequestDTO dto) throws Exception;
+    OrderDto assignSprayer(Long id, List<Long> sprayerIds) throws Exception;
 }

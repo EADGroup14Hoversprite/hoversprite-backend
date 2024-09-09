@@ -1,8 +1,8 @@
 package shared.services;
 
-import shared.dtos.feedback.FeedbackDTO;
+import shared.dtos.FeedbackDto;
 
 public interface FeedbackService {
-    FeedbackDTO createFeedbackByOrderId();
 
+    FeedbackDto getFeedbackById(Long id);
 }

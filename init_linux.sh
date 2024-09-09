@@ -1,50 +1,32 @@
 #!/bin/bash
 
-# RUN THIS FILE TO START THE SERVER ON LINUX
+# RUN THIS FILE TO PULL IMAGES AND RUN THE SPRING BOOT APP USING DOCKER COMPOSE
 
-## Export environment variables for PostgreSQL (these are for local usage, not Docker Compose)
-export POSTGRES_DB=hoversprite
-export POSTGRES_USER=hoversprite_admin
-export POSTGRES_PASSWORD=enterprisehd
+# Define variables
+DOCKER_COMPOSE_FILE="docker-compose.yml"
 
-echo "Environment variables set."
-
-## Build the JAR file
-echo "Building JAR file..."
-mvn clean package
-
-if [ $? -eq 0 ]; then
-    echo "JAR file built successfully"
-else
-    echo "Failed to build JAR file. Please try again."
-    exit 1
-fi
-
-## Check if PostgreSQL Docker image exists
-echo "Checking for PostgreSQL Docker image..."
-if [[ "$(docker images -q postgres:latest 2>/dev/null)" == "" ]]; then
-  echo "PostgreSQL image not found. Pulling from Docker Hub..."
-  docker pull postgres:latest
-
-  if [ $? -eq 0 ]; then
-    echo "PostgreSQL image pulled successfully."
-  else
-    echo "Failed to pull PostgreSQL image. Exiting."
-    exit 1
-  fi
-else
-  echo "PostgreSQL image already exists."
-fi
-
-## Build the Hoversprite Docker image
-echo "Building the Spring Boot Docker image..."
-docker build -t hoversprite-backend:latest .
+# Pull the latest Docker images for all services in the docker-compose file
+echo "Pulling the latest images for all services..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} pull
 
 if [ $? -ne 0 ]; then
-  echo "Failed to build Spring Boot Docker image. Exiting."
+  echo "Failed to pull images. Exiting."
   exit 1
 fi
 
-## Start Docker Compose
-echo "Starting Docker Compose..."
-sudo docker-compose up
+# Check if any containers with the same name are already running and stop them
+echo "Stopping any existing containers..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} down
+
+# Run the Docker Compose file to start the services
+echo "Starting the services with Docker Compose..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+
+if [ $? -ne 0 ]; then
+  echo "Failed to start the services. Exiting."
+  exit 1
+fi
+
+# Check the logs for the application container
+echo "Showing logs for the Spring Boot application..."
+docker-compose -f ${DOCKER_COMPOSE_FILE} logs -f hoversprite-app

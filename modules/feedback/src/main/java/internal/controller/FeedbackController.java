@@ -1,14 +1,15 @@
 package internal.controller;
 
-import internal.dtos.CreateFeedbackByOrderIdRequestDTO;
+import internal.dtos.CreateFeedbackRequestDto;
+import internal.service.FeedbackServiceImpl;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import shared.dtos.feedback.FeedbackDTO;
-import shared.services.FeedbackService;
+import shared.dtos.FeedbackDto;
 
 import java.util.List;
 
@@ -19,17 +20,18 @@ import java.util.List;
 class FeedbackController {
 
     @Autowired
-    private FeedbackService feedbackService;
+    private FeedbackServiceImpl feedbackService;
 
     @PreAuthorize("hasRole('FARMER')")
     @PostMapping("/create")
-    ResponseEntity<FeedbackDTO> createFeedback(@PathVariable String orderId, @RequestBody CreateFeedbackByOrderIdRequestDTO dto) {
-        return null;
+    ResponseEntity<FeedbackDto> createFeedback(@PathVariable Long orderId, @RequestBody CreateFeedbackRequestDto dto) {
+        FeedbackDto feedbackDto = feedbackService.createFeedback(orderId, dto.getContent(), dto.getSatisfactionRating());
+        return new ResponseEntity<>(feedbackDto, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('FARMER')")
     @GetMapping
-    ResponseEntity<List<FeedbackDTO>> getFeedbackById() {
+    ResponseEntity<List<FeedbackDto>> getFeedbackByOrderId(@PathVariable String orderId) {
         return null;
     }
 

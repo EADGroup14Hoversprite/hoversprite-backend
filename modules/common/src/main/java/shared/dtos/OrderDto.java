@@ -1,4 +1,4 @@
-package shared.dtos.order;
+package shared.dtos;
 
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
@@ -7,7 +7,7 @@ import shared.enums.OrderStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface OrderDTO {
+public interface OrderDto {
     Long getId();
 
     Long getFarmerId();
