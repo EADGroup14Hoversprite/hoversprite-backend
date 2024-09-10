@@ -3,6 +3,7 @@ package internal.service;
 import internal.model.Order;
 import internal.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.mail.MailParseException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import shared.dtos.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shared.services.UserService;
+import shared.types.Location;
 import shared.types.LunarDate;
 
 import java.time.LocalDate;
@@ -39,11 +41,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserService userService;
 
-    public OrderDto createOrder(Long farmerId, CropType cropType, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+    public OrderDto createOrder(Long farmerId, CropType cropType, Location sprayLocation, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
         int sessionNum = 1;
         Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
-        if (numOrders == 2) {
+        if (numOrders >= 2) {
             throw new IllegalStateException("The maximum order for this time slot has been reached");
         } else {
            sessionNum += numOrders;
@@ -58,28 +60,32 @@ public class OrderServiceImpl implements OrderService {
             }
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, cropType, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, currentUserId, cropType, sprayLocation, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         } else {
-            order = new Order(null, farmerId, cropType, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, farmerId, cropType, sprayLocation, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         }
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getFarmerId());
 
-        emailService.sendEmail(user.getEmailAddress(), "Order Creation",
-            "Hello, " + user.getFullName() + "!\n" +
-                    "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
-                    "Below is the details of your order: \n" +
-                    "Order ID: " + savedOrder.getId() + "\n" +
-                    "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
-                    "Crop Type: " + savedOrder.getCropType() + "\n" +
-                    "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
-                    "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
-                    "Total Cost: " + savedOrder.getTotalCost() + "\n" +
-                    "Time slot" + savedOrder.getTimeSlot().toString() + "\n" +
-                    "Status: " + savedOrder.getStatus() + "\n" +
-                    "Session: " + savedOrder.getSession() + "\n" +
-                    "Created At: " + savedOrder.getCreatedAt() + "\n"
-                );
+        try {
+            emailService.sendEmail(user.getEmailAddress(), "Order Creation",
+                    "Hello, " + user.getFullName() + "!\n" +
+                            "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
+                            "Below is the details of your order: \n" +
+                            "Order ID: " + savedOrder.getId() + "\n" +
+                            "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
+                            "Crop Type: " + savedOrder.getCropType() + "\n" +
+                            "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
+                            "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
+                            "Total Cost: " + savedOrder.getTotalCost() + "\n" +
+                            "Time slot: " + savedOrder.getTimeSlot().toString() + "\n" +
+                            "Status: " + savedOrder.getStatus() + "\n" +
+                            "Session: " + savedOrder.getSession() + "\n" +
+                            "Created At: " + savedOrder.getCreatedAt() + "\n"
+            );
+        } catch (MailParseException e) {
+            System.out.print(e);
+        }
         return savedOrder;
     }
 
@@ -190,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
                     "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
                             "Farmer Information: \n" +
                             "Full name: " + user.getFullName() + "\n" +
-                            "Location: " + user.getHomeAddress() + "\n" +
+                            "Location: " + order.getSprayLocation() + "\n" +
                             "Phone Number: " + user.getPhoneNumber()
             );
             return null;

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
+import shared.types.Location;
 
 import java.time.LocalDate;
 
@@ -15,6 +16,8 @@ public class CreateOrderRequestDto {
     private Long farmerId;
 
     private CropType cropType;
+
+    private Location sprayLocation;
 
     private Float farmlandArea;
 

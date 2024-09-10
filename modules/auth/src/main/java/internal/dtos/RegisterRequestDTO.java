@@ -20,8 +20,6 @@ public class RegisterRequestDTO {
     @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+", message = "Email must follow normal email format with email domain of @hoversprite")
     private String emailAddress;
 
-    private Location homeAddress;
-
     private UserRole userRole;
 
     private Expertise expertise;

@@ -18,8 +18,6 @@ public interface UserDto extends UserDetails {
 
     String getEmailAddress();
 
-    Location getHomeAddress();
-
     Expertise getExpertise();
 
     LocalDate getCreatedAt();

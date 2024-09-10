@@ -40,9 +40,6 @@ public class User implements UserDto {
     @Column(nullable = false, unique = true)
     private String emailAddress;
 
-    @Embedded
-    private Location homeAddress;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole userRole;
