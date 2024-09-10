@@ -5,8 +5,8 @@
 # Define variables
 IMAGE_NAME="hoversprite-backend"
 DOCKER_USERNAME="phucdoan2003"
-DOCKER_REGISTRY="docker.io" # For Docker Hub; if using a private registry, replace this with your registry URL
-TAG="latest" # Can be dynamic, e.g., based on version control or build number
+DOCKER_REGISTRY="docker.io"
+TAG="latest"
 
 # Build the Spring Boot app JAR
 echo "Building the Spring Boot app JAR..."
