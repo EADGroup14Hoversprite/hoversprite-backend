@@ -1,6 +1,7 @@
 package internal.controller;
 
 import internal.dtos.CreateFeedbackRequestDto;
+import internal.dtos.CreateFeedbackResponseDto;
 import internal.service.FeedbackServiceImpl;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +25,9 @@ class FeedbackController {
 
     @PreAuthorize("hasRole('FARMER')")
     @PostMapping("/create")
-    ResponseEntity<FeedbackDto> createFeedback(@PathVariable Long orderId, @RequestBody CreateFeedbackRequestDto dto) {
+    ResponseEntity<CreateFeedbackResponseDto> createFeedback(@PathVariable Long orderId, @RequestBody CreateFeedbackRequestDto dto) throws Exception {
         FeedbackDto feedbackDto = feedbackService.createFeedback(orderId, dto.getContent(), dto.getSatisfactionRating());
-        return new ResponseEntity<>(feedbackDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(new CreateFeedbackResponseDto("Feedback successfully created", feedbackDto), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('FARMER')")

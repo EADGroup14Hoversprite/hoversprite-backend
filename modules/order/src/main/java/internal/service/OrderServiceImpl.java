@@ -12,10 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import shared.constants.Constants;
 import shared.dtos.UserDto;
-import shared.enums.CropType;
-import shared.enums.OrderSlot;
-import shared.enums.OrderStatus;
-import shared.enums.UserRole;
+import shared.enums.*;
 import shared.services.EmailService;
 import shared.services.OrderService;
 import shared.dtos.OrderDto;
@@ -28,6 +25,8 @@ import shared.types.LunarDate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -202,6 +201,63 @@ public class OrderServiceImpl implements OrderService {
             return null;
         });
         return savedOrder;
+    }
+
+    @Override
+    public List<UserDto> getSuggestedSprayers(Long id, LocalDate startDate, LocalDate endDate) throws Exception {
+        List<UserDto> sprayers = userService.getUsersByUserRole(UserRole.ROLE_SPRAYER);
+
+        List<Order> ordersWithinWeek = getOrdersWithinWeek(startDate, endDate);
+
+        // 1. This collects the set of ids of sprayers that are assigned to orders already within the week
+        Set<Long> assignedSprayerIds = ordersWithinWeek.stream().flatMap(order -> order.getAssignedSprayerIds().stream()).collect(Collectors.toSet());
+
+        // This filter the assigned sprayers from all sprayers in the system, and return the list of free sprayer in the week -> Prioritize sprayers with no orders in the same week
+        List<UserDto> freeSprayers = sprayers.stream().filter(sprayer -> !assignedSprayerIds.contains(sprayer.getId())).toList();
+
+        // If all sprayers have order in the same week then we evaluate using all sprayer.
+        if (freeSprayers.isEmpty()) {
+            freeSprayers = sprayers;
+        }
+
+        // Separate available sprayers to lists based on expertise
+        List<UserDto> apprenticeSprayers = freeSprayers.stream().filter(sprayer -> sprayer.getExpertise() == Expertise.APPRENTICE).toList();
+        List<UserDto> adeptSprayers = freeSprayers.stream().filter(sprayer -> sprayer.getExpertise() == Expertise.ADEPT).toList();
+        List<UserDto> expertSprayers = freeSprayers.stream().filter(sprayer -> sprayer.getExpertise() == Expertise.EXPERT).toList();
+
+
+        List<UserDto> assignedSprayers = new ArrayList<>();
+
+        // 2. Prioritize apprentice sprayer if available
+        if (!apprenticeSprayers.isEmpty()) {
+
+            // 3. If expert sprayer available, choose 1 to accompany
+            if (!expertSprayers.isEmpty()) {
+                assignedSprayers.add(apprenticeSprayers.getFirst());
+                assignedSprayers.add(expertSprayers.getFirst());
+                // Else if adept sprayer available, choose 1 to accompany
+            } else if (!adeptSprayers.isEmpty()) {
+                assignedSprayers.add(apprenticeSprayers.getFirst());
+                assignedSprayers.add(adeptSprayers.getFirst());
+            }
+
+            // Else if expert sprayer is available
+        } else if (!expertSprayers.isEmpty()) {
+            assignedSprayers.add(expertSprayers.getFirst());
+            // Else if at least 2 adept sprayer is available
+        } else if (adeptSprayers.size() >= 2) {
+            assignedSprayers.add(adeptSprayers.getFirst());
+            assignedSprayers.add(adeptSprayers.getLast());
+        }
+
+        if (assignedSprayers.isEmpty()) {
+            return null;
+        }
+        return assignedSprayers;
+    }
+
+    private List<Order> getOrdersWithinWeek(LocalDate startDate, LocalDate endDate) {
+        return orderRepository.findAllWithinWeek(startDate, endDate);
     }
 
 
