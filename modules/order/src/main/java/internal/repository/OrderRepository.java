@@ -17,4 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Long countByDesiredDateAndTimeSlot(@Param("desiredDate") LocalDate desiredDate, @Param("timeSlot") OrderSlot timeSlot);
 
     List<Order> findAllByFarmerId(Long farmerId);
+
+    @Query("SELECT o FROM Order o WHERE o.desiredDate BETWEEN :startDate AND :endDate")
+    List<Order> findAllWithinWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

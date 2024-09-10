@@ -35,7 +35,10 @@ public class Order implements OrderDto {
     private CropType cropType;
 
     @Column(nullable = false)
-    private Location sprayLocation;
+    private String address;
+
+    @Column(nullable = false)
+    private Location location;
 
     @Column(nullable = false)
     private Float farmlandArea;

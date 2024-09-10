@@ -4,7 +4,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import shared.enums.AuthRole;
 import shared.enums.Expertise;
 import shared.enums.UserRole;
-import shared.types.Location;
 
 import java.time.LocalDate;
 

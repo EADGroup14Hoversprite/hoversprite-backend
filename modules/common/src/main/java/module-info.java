@@ -24,4 +24,5 @@ module common {
     exports shared.dtos;
     exports shared.services;
     exports shared.serializer;
+    exports shared.utils;
 }

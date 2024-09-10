@@ -17,7 +17,9 @@ public interface OrderDto {
 
     Float getFarmlandArea();
 
-    Location getSprayLocation();
+    String getAddress();
+
+    Location getLocation();
 
     LocalDate getDesiredDate();
 

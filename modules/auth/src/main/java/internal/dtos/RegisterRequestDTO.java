@@ -12,12 +12,14 @@ import shared.types.Location;
 @NoArgsConstructor
 public class RegisterRequestDTO {
 
+    @Pattern(regexp = "^[A-Z][a-z]*[A-Z][a-z]+$", message = "Full name must cannot have more than 2 non-adjacent capitalized letters")
     private String fullName;
 
+    @Pattern(regexp = "^(0|\\+84)\\s?\\d{3}\\s?\\d{3}\\s?\\d{3,4}$", message = "Phone number must starts with 0 or +84")
     private String phoneNumber;
 
     @Email(message = "Invalid email address format")
-    @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+", message = "Email must follow normal email format with email domain of @hoversprite")
+    @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+\\.(com|vn)$", message = "Email must follow the format with a domain of @hoversprite and end with .com or .vn.")
     private String emailAddress;
 
     private UserRole userRole;
