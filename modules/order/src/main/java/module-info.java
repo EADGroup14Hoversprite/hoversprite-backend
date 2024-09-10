@@ -13,4 +13,5 @@ module order {
     requires spring.tx;
     requires com.fasterxml.jackson.databind;
     requires jakarta.validation;
+    requires spring.context.support;
 }

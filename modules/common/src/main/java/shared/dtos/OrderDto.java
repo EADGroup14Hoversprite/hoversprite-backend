@@ -3,6 +3,7 @@ package shared.dtos;
 import shared.enums.CropType;
 import shared.enums.OrderSlot;
 import shared.enums.OrderStatus;
+import shared.types.Location;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +16,8 @@ public interface OrderDto {
     CropType getCropType();
 
     Float getFarmlandArea();
+
+    Location getSprayLocation();
 
     LocalDate getDesiredDate();
 

@@ -12,6 +12,7 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import shared.serializer.LocalDateToEpochSerializer;
+import shared.types.Location;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,6 +33,9 @@ public class Order implements OrderDto {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CropType cropType;
+
+    @Column(nullable = false)
+    private Location sprayLocation;
 
     @Column(nullable = false)
     private Float farmlandArea;

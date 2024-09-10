@@ -26,9 +26,9 @@ public class AuthService {
     public AuthDTO register(RegisterRequestDTO dto) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(dto.getPassword());
-        UserDto newUserDto = userService.createUser(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
+        UserDto newUserDto = userService.createUser(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
 
-        return new AuthDTO(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getHomeAddress(), newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
+        return new AuthDTO(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
     }
 
     public AuthDTO signIn(SignInRequestDTO dto) throws Exception {
@@ -39,14 +39,6 @@ public class AuthService {
             throw new BadCredentialsException("Invalid password.");
         }
 
-        return new AuthDTO(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
-    }
-
-    public Boolean emailConfirmation(String id) {
-        return false;
-    }
-
-    public Boolean passwordRecovery(String id) {
-        return false;
+        return new AuthDTO(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
     }
 }

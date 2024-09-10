@@ -19,8 +19,6 @@ public class AuthDTO {
 
     private String emailAddress;
 
-    private Location homeAddress;
-
     private Expertise expertise;
 
     private LocalDate createdAt;
