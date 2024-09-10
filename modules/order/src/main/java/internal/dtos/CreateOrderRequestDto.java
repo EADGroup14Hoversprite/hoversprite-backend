@@ -17,7 +17,9 @@ public class CreateOrderRequestDto {
 
     private CropType cropType;
 
-    private Location sprayLocation;
+    private String address;
+
+    private Location location;
 
     private Float farmlandArea;
 

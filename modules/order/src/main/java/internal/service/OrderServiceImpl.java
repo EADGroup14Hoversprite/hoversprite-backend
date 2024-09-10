@@ -41,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserService userService;
 
-    public OrderDto createOrder(Long farmerId, CropType cropType, Location sprayLocation, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+    public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
         int sessionNum = 1;
         Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
@@ -60,9 +60,9 @@ public class OrderServiceImpl implements OrderService {
             }
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, cropType, sprayLocation, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         } else {
-            order = new Order(null, farmerId, cropType, sprayLocation, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
         }
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getFarmerId());
@@ -196,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
                     "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
                             "Farmer Information: \n" +
                             "Full name: " + user.getFullName() + "\n" +
-                            "Location: " + order.getSprayLocation() + "\n" +
+                            "Location: " + order.getLocation() + "\n" +
                             "Phone Number: " + user.getPhoneNumber()
             );
             return null;
