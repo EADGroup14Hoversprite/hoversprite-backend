@@ -16,6 +16,7 @@ module order {
     requires org.hibernate.orm.core;
     requires org.apache.tomcat.embed.core;
     requires jakarta.persistence;
+    requires spring.data.jpa;
 
     exports hoversprite.order.external.dto;
     exports hoversprite.order.external.service;

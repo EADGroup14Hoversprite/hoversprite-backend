@@ -5,28 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>enterprise</groupId>
-        <artifactId>hoversprite</artifactId>
+        <artifactId>modules</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>modules</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>notification</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <modules>
-        <module>auth</module>
-        <module>common</module>
-        <module>user</module>
-        <module>order</module>
-        <module>email</module>
-        <module>feedback</module>
-        <module>payment</module>
-        <module>notification</module>
-    </modules>
 
 </project>
