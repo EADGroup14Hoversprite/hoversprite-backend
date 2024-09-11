@@ -62,8 +62,6 @@ public class Order implements OrderDto {
     @ElementCollection
     private List<Long> assignedSprayerIds;
 
-    private Integer session;
-
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     @JsonSerialize(using = LocalDateToEpochSerializer.class)

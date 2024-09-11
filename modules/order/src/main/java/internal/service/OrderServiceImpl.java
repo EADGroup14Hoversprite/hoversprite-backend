@@ -6,7 +6,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import internal.model.Order;
 import internal.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.mail.MailParseException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,7 +26,7 @@ import shared.services.PaymentService;
 import shared.services.UserService;
 import shared.types.Location;
 import shared.types.LunarDate;
-import shared.utils.UtilFunction;
+import shared.utils.UtilFunctions;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,50 +50,40 @@ public class OrderServiceImpl implements OrderService {
     private PaymentService paymentService;
 
     public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
-        int sessionNum = 1;
-        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
+        // Remember to check if a slot is count as full when there are 2 confirmed orders or 2 pending orders
+        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
         if (numOrders >= 2) {
-            throw new IllegalStateException("The maximum order for this time slot has been reached");
-        } else {
-           sessionNum += numOrders;
+            throw new DataIntegrityViolationException("Maximum number of order for this time slot has been reached");
         }
 
         Order order;
 
         if (farmerId == null) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
-            }
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            UserDetails userDetails = UtilFunctions.getUserDetails();
             Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), null, null);
         } else {
-            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), null, null);
         }
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getFarmerId());
 
-        try {
-            emailService.sendEmail(user.getEmailAddress(), "Order Creation",
-                    "Hello, " + user.getFullName() + "!\n" +
-                            "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
-                            "Below is the details of your order: \n" +
-                            "Order ID: " + savedOrder.getId() + "\n" +
-                            "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
-                            "Crop Type: " + savedOrder.getCropType() + "\n" +
-                            "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
-                            "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
-                            "Total Cost: " + savedOrder.getTotalCost() + "\n" +
-                            "Time slot: " + savedOrder.getTimeSlot().toString() + "\n" +
-                            "Status: " + savedOrder.getStatus() + "\n" +
-                            "Session: " + savedOrder.getSession() + "\n" +
-                            "Created At: " + savedOrder.getCreatedAt() + "\n"
-            );
-        } catch (MailParseException e) {
-            System.out.print(e);
-        }
+        emailService.sendEmail(user.getEmailAddress(), "Order Creation",
+                "Hello, " + user.getFullName() + "!\n" +
+                        "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
+                        "Below is the details of your order: \n" +
+                        "Order ID: " + savedOrder.getId() + "\n" +
+                        "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
+                        "Crop Type: " + savedOrder.getCropType() + "\n" +
+                        "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
+                        "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
+                        "Total Cost: " + savedOrder.getTotalCost() + "\n" +
+                        "Time slot: " + savedOrder.getTimeSlot().toString() + "\n" +
+                        "Status: " + savedOrder.getStatus() + "\n" +
+                        "Created At: " + savedOrder.getCreatedAt() + "\n"
+        );
+
         return savedOrder;
     }
 
@@ -118,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto updateOrderStatus(Long id, OrderStatus status) throws Exception {
-        UserDetails userDetails = UtilFunction.getUserDetails();
+        UserDetails userDetails = UtilFunctions.getUserDetails();
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
 
@@ -160,10 +150,11 @@ public class OrderServiceImpl implements OrderService {
 
         if(status == OrderStatus.COMPLETED) {
             if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
-                throw new AccessDeniedException("Only sprayers are allowed to complete an order an order.");
+                throw new AccessDeniedException("Only receptionists are allowed to complete an order.");
             }
-            if (order.getAssignedSprayerIds().contains(Long.parseLong(userDetails.getUsername()))) {
-                throw new AccessDeniedException("You are not assigned to this order. You cannot mark it as completed.");
+
+            if(order.getPaymentStatus().equals(PaymentStatus.UNPAID)) {
+                throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
             }
 
             if (order.getStatus() != OrderStatus.FINISHED) {
@@ -266,7 +257,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public String createPayment(Long id, String successUrl, String cancelUrl) throws Exception {
-        UserDetails userDetails = UtilFunction.getUserDetails();
+        UserDetails userDetails = UtilFunctions.getUserDetails();
         OrderDto orderDto = getOrderById(id);
         if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
             throw new BadCredentialsException("You are not the farmer associated with this order");
@@ -284,7 +275,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public String executePayment(Long id, String paymentId, String payerId) throws Exception {
-        UserDetails userDetails = UtilFunction.getUserDetails();
+        UserDetails userDetails = UtilFunctions.getUserDetails();
         OrderDto orderDto = getOrderById(id);
         if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
             throw new BadCredentialsException("You are not the farmer associated with this order");
@@ -300,6 +291,22 @@ public class OrderServiceImpl implements OrderService {
         } else {
             throw new PayPalRESTException("Payment failed. Please check your PayPal account");
         }
+    }
+
+    public String confirmCashPayment(Long id) throws Exception {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        OrderDto orderDto = getOrderById(id);
+        List<Long> sprayerIds = orderDto.getAssignedSprayerIds();
+
+        if (!sprayerIds.contains(Long.valueOf(userDetails.getUsername()))) {
+            throw new AccessDeniedException("You are not assigned to this order. You cannot confirm cash payment for it.");
+        }
+
+        Order order = (Order) orderDto;
+        order.setPaymentStatus(PaymentStatus.PAID);
+        orderRepository.save(order);
+
+        return "Cash payment confirmed for order #" + orderDto.getId();
     }
 
 

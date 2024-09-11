@@ -1,7 +1,9 @@
 package shared.exception;
 
+import com.paypal.base.exception.PayPalException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mail.MailParseException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import shared.dtos.ErrorResponseDto;
 import org.apache.coyote.BadRequestException;
@@ -90,5 +92,15 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return new ResponseEntity<>(new ErrorResponseDto(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MailParseException.class)
+    public ResponseEntity<ErrorResponseDto> handleMailParseException(MailParseException e) {
+        return new ResponseEntity<>(new ErrorResponseDto(e.getMessage()), HttpStatus.FAILED_DEPENDENCY);
+    }
+
+    @ExceptionHandler(PayPalException.class)
+    public ResponseEntity<ErrorResponseDto> handlePayPalException(PayPalException e) {
+        return new ResponseEntity<>(new ErrorResponseDto(e.getMessage()), HttpStatus.FAILED_DEPENDENCY);
     }
 }

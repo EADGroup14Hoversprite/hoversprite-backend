@@ -21,6 +21,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/order")
+@CrossOrigin("*")
 class OrderController {
 
     @Autowired
@@ -92,6 +93,12 @@ class OrderController {
     @PostMapping("/{id}/execute-payment")
     ResponseEntity<ExecutePaymentResponseDto> executePayment(@PathVariable Long id, @RequestBody ExecutePaymentRequestDto dto) throws Exception {
         return new ResponseEntity<>(new ExecutePaymentResponseDto(orderService.executePayment(id, dto.getPaymentId(), dto.getPayerId())), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
+    @PostMapping("/{id}/confirm-cash-payment")
+    ResponseEntity<ConfirmCashPaymentDto> confirmCashPayment(@PathVariable Long id) throws Exception{
+        return new ResponseEntity<>(new ConfirmCashPaymentDto(orderService.confirmCashPayment(id)), HttpStatus.OK);
     }
 
 }

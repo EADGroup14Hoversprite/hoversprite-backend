@@ -18,6 +18,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/order/{orderId}/feedback")
+@CrossOrigin("*")
 class FeedbackController {
 
     @Autowired
