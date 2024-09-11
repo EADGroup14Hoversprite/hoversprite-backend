@@ -24,7 +24,7 @@ class FeedbackController {
     private FeedbackServiceImpl feedbackService;
 
     @PreAuthorize("hasRole('FARMER')")
-    @PostMapping("/create")
+    @PostMapping()
     ResponseEntity<CreateFeedbackResponseDto> createFeedback(@PathVariable Long orderId, @RequestBody CreateFeedbackRequestDto dto) throws Exception {
         FeedbackDto feedbackDto = feedbackService.createFeedback(orderId, dto.getContent(), dto.getSatisfactionRating());
         return new ResponseEntity<>(new CreateFeedbackResponseDto("Feedback successfully created", feedbackDto), HttpStatus.CREATED);

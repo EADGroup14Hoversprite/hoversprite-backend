@@ -15,7 +15,7 @@ public interface OrderDto {
 
     CropType getCropType();
 
-    Float getFarmlandArea();
+    Double getFarmlandArea();
 
     String getAddress();
 
@@ -23,7 +23,7 @@ public interface OrderDto {
 
     LocalDate getDesiredDate();
 
-    Float getTotalCost();
+    Double getTotalCost();
 
     OrderSlot getTimeSlot();
 

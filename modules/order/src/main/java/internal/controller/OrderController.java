@@ -1,5 +1,6 @@
 package internal.controller;
 
+import com.paypal.api.payments.Payment;
 import internal.dtos.*;
 import internal.service.OrderServiceImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shared.dtos.UserDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -60,14 +62,36 @@ class OrderController {
         return new ResponseEntity<>(new GetOrdersByFarmerIdResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/by-date-range")
+    ResponseEntity<GetOrdersResponseDto> getOrdersByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        List<OrderDto> orderDtos = orderService.getOrdersWithinDateRange(startDate, endDate);
+        if (orderDtos.isEmpty()) {
+            return new ResponseEntity<>(new GetOrdersResponseDto("No orders within time range found", null), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
-    @PostMapping("/{id}/suggested-sprayers")
-    ResponseEntity<GetSuggestedSprayersResponseDto> getSuggestedSprayers(@PathVariable Long id, @RequestBody GetSuggestedSprayersRequestDto dto) throws Exception {
-        List<UserDto> sprayerDtos = orderService.getSuggestedSprayers(id, dto.getStartDate(), dto.getEndDate());
+    @GetMapping("/{id}/suggested-sprayers")
+    ResponseEntity<GetSuggestedSprayersResponseDto> getSuggestedSprayers(@PathVariable Long id, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) throws Exception {
+        List<UserDto> sprayerDtos = orderService.getSuggestedSprayers(id, startDate, endDate);
         if (sprayerDtos.isEmpty()) {
             return new ResponseEntity<>(new GetSuggestedSprayersResponseDto("No suitable sprayers suggested for this order", null), HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(new GetSuggestedSprayersResponseDto("Successfully found suitable sprayers for this order", sprayerDtos), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER') and hasRole('FARMER')")
+    @PostMapping("/{id}/create-payment")
+    ResponseEntity<CreatePaymentResponseDto> createPayment(@PathVariable Long id, @RequestBody CreatePaymentRequestDto dto) throws Exception {
+        return new ResponseEntity<>(new CreatePaymentResponseDto(orderService.createPayment(id, dto.getSuccessUrl(), dto.getCancelUrl())), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER') and hasRole('FARMER')")
+    @PostMapping("/{id}/execute-payment")
+    ResponseEntity<ExecutePaymentResponseDto> executePayment(@PathVariable Long id, @RequestBody ExecutePaymentRequestDto dto) throws Exception {
+        return new ResponseEntity<>(new ExecutePaymentResponseDto(orderService.executePayment(id, dto.getPaymentId(), dto.getPayerId())), HttpStatus.OK);
     }
 
 }

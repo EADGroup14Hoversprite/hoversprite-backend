@@ -17,6 +17,7 @@ module common {
     requires com.fasterxml.jackson.databind;
     requires com.ibm.icu;
     requires spring.tx;
+    requires rest.api.sdk;
 
     exports shared.enums;
     exports shared.types;

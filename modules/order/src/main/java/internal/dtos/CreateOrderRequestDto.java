@@ -21,7 +21,7 @@ public class CreateOrderRequestDto {
 
     private Location location;
 
-    private Float farmlandArea;
+    private Double farmlandArea;
 
     private LocalDate desiredDate;
 
