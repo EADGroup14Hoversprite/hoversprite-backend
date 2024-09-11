@@ -21,7 +21,6 @@
     <modules>
         <module>auth</module>
         <module>common</module>
-        <module>security</module>
         <module>user</module>
         <module>order</module>
         <module>email</module>

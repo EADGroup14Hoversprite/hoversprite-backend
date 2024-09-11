@@ -20,11 +20,10 @@ module common {
     requires rest.api.sdk;
     requires spring.context.support;
 
-    exports shared.enums;
-    exports shared.types;
-    exports shared.constants;
-    exports shared.dtos;
-    exports shared.services;
-    exports shared.serializer;
-    exports shared.utils;
+    exports hoversprite.common.external.enums;
+    exports hoversprite.common.external.type;
+    exports hoversprite.common.external.constant;
+    exports hoversprite.common.internal.dto;
+    exports hoversprite.common.external.serializer;
+    exports hoversprite.common.external.util;
 }

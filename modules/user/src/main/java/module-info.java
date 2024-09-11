@@ -1,4 +1,6 @@
 module user {
+    exports hoversprite.user.external.service;
+    exports hoversprite.user.external.dto;
     requires io.swagger.v3.oas.annotations;
     requires jakarta.persistence;
     requires org.apache.tomcat.embed.core;

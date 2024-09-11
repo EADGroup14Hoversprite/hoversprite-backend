@@ -1,12 +1,14 @@
 module feedback {
-    requires io.swagger.v3.oas.annotations;
+    requires order;
+    requires spring.data.commons;
     requires common;
-    requires spring.beans;
-    requires spring.web;
-    requires spring.security.core;
-    requires static lombok;
     requires spring.context;
-    requires spring.data.jpa;
+    requires spring.security.core;
+    requires spring.beans;
     requires org.apache.tomcat.embed.core;
     requires jakarta.persistence;
+    requires spring.web;
+    requires io.swagger.v3.oas.annotations;
+    requires static lombok;
+    requires spring.data.jpa;
 }

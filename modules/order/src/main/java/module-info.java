@@ -1,18 +1,22 @@
 module order {
-    requires io.swagger.v3.oas.annotations;
-    requires jakarta.persistence;
-    requires static lombok;
-    requires org.hibernate.orm.core;
+    requires spring.data.commons;
+    requires email;
+    requires user;
+    requires payment;
+    requires common;
+    requires rest.api.sdk;
+    requires spring.tx;
+    requires spring.security.core;
     requires spring.beans;
     requires spring.context;
-    requires spring.data.jpa;
+    requires io.swagger.v3.oas.annotations;
     requires spring.web;
-    requires common;
-    requires spring.security.core;
-    requires spring.data.commons;
-    requires spring.tx;
+    requires static lombok;
     requires com.fasterxml.jackson.databind;
-    requires jakarta.validation;
-    requires spring.context.support;
-    requires rest.api.sdk;
+    requires org.hibernate.orm.core;
+    requires org.apache.tomcat.embed.core;
+    requires jakarta.persistence;
+
+    exports hoversprite.order.external.dto;
+    exports hoversprite.order.external.service;
 }

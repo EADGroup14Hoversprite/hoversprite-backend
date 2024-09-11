@@ -1,4 +1,5 @@
 module payment {
+    exports hoversprite.payment.external.service;
     requires common;
     requires rest.api.sdk;
     requires spring.beans;
