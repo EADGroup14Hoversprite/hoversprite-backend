@@ -3,9 +3,7 @@ package internal.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import shared.dtos.OrderDto;
 import lombok.NoArgsConstructor;
-import shared.enums.CropType;
-import shared.enums.OrderSlot;
-import shared.enums.OrderStatus;
+import shared.enums.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,14 +39,14 @@ public class Order implements OrderDto {
     private Location location;
 
     @Column(nullable = false)
-    private Float farmlandArea;
+    private Double farmlandArea;
 
     @Column(nullable = false)
     @JsonSerialize(using = LocalDateToEpochSerializer.class)
     private LocalDate desiredDate;
 
     @Column(nullable = false)
-    private Float totalCost;
+    private Double totalCost;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,6 +54,10 @@ public class Order implements OrderDto {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatus paymentStatus;
 
     @ElementCollection
     private List<Long> assignedSprayerIds;

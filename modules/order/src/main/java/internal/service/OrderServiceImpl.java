@@ -1,11 +1,15 @@
 package internal.service;
 
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
 import internal.model.Order;
 import internal.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.mail.MailParseException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,9 +22,11 @@ import shared.services.OrderService;
 import shared.dtos.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shared.services.PaymentService;
 import shared.services.UserService;
 import shared.types.Location;
 import shared.types.LunarDate;
+import shared.utils.UtilFunction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,7 +46,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserService userService;
 
-    public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Float farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+    @Autowired
+    private PaymentService paymentService;
+
+    public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
         int sessionNum = 1;
         Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
 
@@ -59,9 +68,9 @@ public class OrderServiceImpl implements OrderService {
             }
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), sessionNum, null, null);
         } else {
-            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, new ArrayList<>(), sessionNum, null, null);
+            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, PaymentStatus.UNPAID, new ArrayList<>(), sessionNum, null, null);
         }
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getFarmerId());
@@ -109,11 +118,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto updateOrderStatus(Long id, OrderStatus status) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDetails userDetails = UtilFunction.getUserDetails();
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
 
@@ -126,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
             }
             UserDto user = userService.getUserById(order.getFarmerId());
 
-            emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been confirmed and we are looking for suitable sprayers to assign");
+            emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been confirmed and we are looking for suitable sprayers to assign.");
         }
 
         if(status == OrderStatus.IN_PROGRESS) {
@@ -203,11 +208,10 @@ public class OrderServiceImpl implements OrderService {
         return savedOrder;
     }
 
-    @Override
     public List<UserDto> getSuggestedSprayers(Long id, LocalDate startDate, LocalDate endDate) throws Exception {
         List<UserDto> sprayers = userService.getUsersByUserRole(UserRole.ROLE_SPRAYER);
 
-        List<Order> ordersWithinWeek = getOrdersWithinWeek(startDate, endDate);
+        List<OrderDto> ordersWithinWeek = getOrdersWithinDateRange(startDate, endDate);
 
         // 1. This collects the set of ids of sprayers that are assigned to orders already within the week
         Set<Long> assignedSprayerIds = ordersWithinWeek.stream().flatMap(order -> order.getAssignedSprayerIds().stream()).collect(Collectors.toSet());
@@ -256,8 +260,46 @@ public class OrderServiceImpl implements OrderService {
         return assignedSprayers;
     }
 
-    private List<Order> getOrdersWithinWeek(LocalDate startDate, LocalDate endDate) {
-        return orderRepository.findAllWithinWeek(startDate, endDate);
+
+    public List<OrderDto> getOrdersWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        return orderRepository.findAllWithinDateRange(startDate, endDate).stream().map(entity -> (OrderDto) entity).toList();
+    }
+
+    public String createPayment(Long id, String successUrl, String cancelUrl) throws Exception {
+        UserDetails userDetails = UtilFunction.getUserDetails();
+        OrderDto orderDto = getOrderById(id);
+        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
+            throw new BadCredentialsException("You are not the farmer associated with this order");
+        }
+
+        Payment payment = paymentService.createPayment(orderDto.getTotalCost(), "USD", "paypal", "sale", "Payment for order #" + orderDto.getId(), cancelUrl, successUrl);
+
+        for (Links link : payment.getLinks()) {
+            if (link.getRel().equals("approval_url")) {
+                return link.getHref();
+            }
+        }
+
+        throw new PayPalRESTException("Paypal approval URL not found");
+    }
+
+    public String executePayment(Long id, String paymentId, String payerId) throws Exception {
+        UserDetails userDetails = UtilFunction.getUserDetails();
+        OrderDto orderDto = getOrderById(id);
+        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
+            throw new BadCredentialsException("You are not the farmer associated with this order");
+        }
+
+        Payment payment = paymentService.executePayment(paymentId, payerId);
+
+        if (payment.getState().equals("approved")) {
+            Order order = (Order) orderDto;
+            order.setPaymentStatus(PaymentStatus.PAID);
+            orderRepository.save(order);
+            return "Payment success";
+        } else {
+            throw new PayPalRESTException("Payment failed. Please check your PayPal account");
+        }
     }
 
 
