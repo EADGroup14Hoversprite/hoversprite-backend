@@ -27,9 +27,9 @@ class OrderController {
     private OrderServiceImpl orderService;
 
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
-    @PostMapping("/create")
+    @PostMapping
     ResponseEntity<CreateOrderResponseDto> createOrder(@RequestBody CreateOrderRequestDto dto) throws Exception {
-        OrderDto orderDto = orderService.createOrder(dto.getFarmerId(), dto.getCropType(), dto.getAddress(), dto.getLocation(), dto.getFarmlandArea(), dto.getDesiredDate(), dto.getTimeSlot());
+        OrderDto orderDto = orderService.createOrder(dto.getCropType(), dto.getFarmerName(), dto.getFarmerPhoneNumber(), dto.getAddress(), dto.getLocation(), dto.getFarmlandArea(), dto.getDesiredDate(), dto.getTimeSlot());
         return new ResponseEntity<>(new CreateOrderResponseDto(orderDto == null ? "This time slot is full": "Order created successfully", orderDto), HttpStatus.CREATED);
     }
 

@@ -26,4 +26,12 @@ public class Feedback implements FeedbackDto {
     @Column(nullable = false)
     private FeedbackSatisfactionRating satisfactionRating;
 
+    @Column(nullable = false)
+    private Integer attentive;
+
+    @Column(nullable = false)
+    private Integer friendly;
+
+    @Column(nullable = false)
+    private Integer professional;
 }

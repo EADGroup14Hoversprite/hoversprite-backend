@@ -1,5 +1,6 @@
 package hoversprite.user.external.dto;
 
+import hoversprite.common.external.type.Location;
 import org.springframework.security.core.userdetails.UserDetails;
 import hoversprite.common.external.enums.AuthRole;
 import hoversprite.common.external.enums.Expertise;
@@ -26,4 +27,8 @@ public interface UserDto extends UserDetails {
     UserRole getUserRole();
 
     AuthRole getAuthRole();
+
+    String getHomeAddress();
+
+    Location getLocation();
 }

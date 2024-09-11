@@ -12,8 +12,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class CreateOrderRequestDto {
 
-    //null if farmer is sending request
-    private Long farmerId;
+    private String farmerName;
+
+    private String farmerPhoneNumber;
 
     private CropType cropType;
 
@@ -26,4 +27,5 @@ public class CreateOrderRequestDto {
     private LocalDate desiredDate;
 
     private OrderSlot timeSlot;
+
 }

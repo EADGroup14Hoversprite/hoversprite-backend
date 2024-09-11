@@ -1,5 +1,6 @@
 package hoversprite.auth.internal.service;
 
+import hoversprite.auth.external.service.JwtService;
 import hoversprite.common.external.enums.AuthRole;
 import hoversprite.common.external.enums.UserRole;
 import hoversprite.user.external.dto.UserDto;
@@ -17,7 +18,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
     @Value("${security.jwt.secret}")
     private String secretKey;
 
@@ -29,7 +30,7 @@ public class JwtService {
         return id.equals(user.getUsername()) && !isTokenExpired(token);
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return getExpirationDateFromJwt(token).before(new Date());
     }
 

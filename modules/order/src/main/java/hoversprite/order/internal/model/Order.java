@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import hoversprite.common.external.enums.CropType;
 import hoversprite.common.external.enums.OrderSlot;
 import hoversprite.common.external.enums.OrderStatus;
+import hoversprite.common.external.enums.PaymentMethod;
 import hoversprite.order.external.dto.OrderDto;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
@@ -28,11 +29,17 @@ public class Order implements OrderDto {
     private Long id;
 
     @Column(nullable = false)
-    private Long farmerId;
+    private Long bookerId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CropType cropType;
+
+    @Column(nullable = false)
+    private String farmerName;
+
+    @Column(nullable = false)
+    private String farmerPhoneNumber;
 
     @Column(nullable = false)
     private String address;
@@ -53,6 +60,10 @@ public class Order implements OrderDto {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderSlot timeSlot;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

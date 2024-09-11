@@ -1,4 +1,5 @@
 module auth {
+    exports hoversprite.auth.external.service;
     requires user;
     requires common;
     requires spring.beans;
