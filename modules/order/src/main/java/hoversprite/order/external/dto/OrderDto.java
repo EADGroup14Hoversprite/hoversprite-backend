@@ -11,7 +11,7 @@ import java.util.List;
 public interface OrderDto {
     Long getId();
 
-    Long getFarmerId();
+    Long getBookerId();
 
     CropType getCropType();
 
@@ -36,4 +36,8 @@ public interface OrderDto {
     LocalDate getUpdatedAt();
 
     Boolean getPaymentStatus();
+
+    String getFarmerName();
+
+    String getFarmerPhoneNumber();
 }

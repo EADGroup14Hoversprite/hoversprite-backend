@@ -13,10 +13,10 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.desiredDate = :desiredDate AND o.timeSlot = :timeSlot")
-    Long countByDesiredDateAndTimeSlot(@Param("desiredDate") LocalDate desiredDate, @Param("timeSlot") OrderSlot timeSlot);
+    @Query("SELECT o FROM Order o WHERE o.desiredDate = :desiredDate AND o.timeSlot = :timeSlot AND o.status <> 'CANCELLED'")
+    List<Order> getPendingOrdersByDesiredDateAndTimeSlot(@Param("desiredDate") LocalDate desiredDate, @Param("timeSlot") OrderSlot timeSlot);
 
-    List<Order> findAllByFarmerId(Long farmerId);
+    List<Order> findAllByBookerId(Long farmerId);
 
     @Query("SELECT o FROM Order o WHERE o.desiredDate BETWEEN :startDate AND :endDate")
     List<Order> findAllWithinDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);

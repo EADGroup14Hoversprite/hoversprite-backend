@@ -8,6 +8,7 @@ import hoversprite.email.external.service.EmailService;
 import hoversprite.common.external.enums.CropType;
 import hoversprite.common.external.enums.OrderSlot;
 import hoversprite.common.external.enums.OrderStatus;
+import hoversprite.notification.external.service.NotificationService;
 import hoversprite.order.internal.model.Order;
 import hoversprite.order.internal.repository.OrderRepository;
 import hoversprite.payment.external.service.PaymentService;
@@ -53,40 +54,39 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private PaymentService paymentService;
 
-    public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+    @Autowired
+    private NotificationService notificationService;
 
-        // Remember to check if a slot is count as full when there are 2 confirmed orders or 2 pending orders
-        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
-        if (numOrders >= 2) {
+    public OrderDto createOrder(CropType cropType, String farmerName, String farmerPhoneNumber, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+
+        List<Order> numOrders = orderRepository.getPendingOrdersByDesiredDateAndTimeSlot(desiredDate, timeSlot);
+        if (numOrders.size() >= 2) {
             throw new DataIntegrityViolationException("Maximum number of order for this time slot has been reached");
         }
 
-        Order order;
-
-        if (farmerId == null) {
-            UserDetails userDetails = UtilFunctions.getUserDetails();
-            Long currentUserId = Long.parseLong(userDetails.getUsername());
-            order = new Order(null, currentUserId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, false, new ArrayList<>(), null, null);
-        } else {
-            order = new Order(null, farmerId, cropType, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, OrderStatus.PENDING, false, new ArrayList<>(), null, null);
-        }
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
+        Order order = new Order(null, currentUserId, cropType, farmerName, farmerPhoneNumber, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, PaymentMethod.CASH, OrderStatus.PENDING, false, new ArrayList<>(), null, null);
         Order savedOrder = orderRepository.save(order);
-        UserDto user = userService.getUserById(order.getFarmerId());
+        UserDto user = userService.getUserById(order.getBookerId());
 
         emailService.sendEmail(user.getEmailAddress(), "Order Creation",
                 "Hello, " + user.getFullName() + "!\n" +
                         "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
                         "Below is the details of your order: \n" +
                         "Order ID: " + savedOrder.getId() + "\n" +
-                        "Farmer ID: " + savedOrder.getFarmerId() + "\n" +
                         "Crop Type: " + savedOrder.getCropType() + "\n" +
                         "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
                         "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
                         "Total Cost: " + savedOrder.getTotalCost() + "\n" +
                         "Time slot: " + savedOrder.getTimeSlot().toString() + "\n" +
                         "Status: " + savedOrder.getStatus() + "\n" +
-                        "Created At: " + savedOrder.getCreatedAt() + "\n"
+                        "Created At: " + savedOrder.getCreatedAt() + "\n" +
+                        "Please wait for a receptionist to confirm this order. \n" +
+                        "Thank you for using Hoversprite!"
         );
+
+        notificationService.sendNotification(String.valueOf(user.getId()), "Your order #" + savedOrder.getId() + " has been created.");
 
         return savedOrder;
     }
@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
         }
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        List<OrderDto> orderDtos = orderRepository.findAllByFarmerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
+        List<OrderDto> orderDtos = orderRepository.findAllByBookerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
         System.out.println(orderDtos);
         return orderDtos;
     }
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
             if (order.getStatus() != OrderStatus.PENDING) {
                 throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
             }
-            UserDto user = userService.getUserById(order.getFarmerId());
+            UserDto user = userService.getUserById(order.getBookerId());
 
             emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been confirmed and we are looking for suitable sprayers to assign.");
         }
@@ -145,10 +145,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if(status == OrderStatus.FINISHED) {
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name()))) {
-                throw new AccessDeniedException("Only farmers are allowed to confirmed that the spraying session is finished.");
+            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name())) || userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+                throw new AccessDeniedException("Only farmers or receptionists are allowed to confirmed that the spraying session is finished.");
             }
-            if (Long.parseLong(userDetails.getUsername()) != order.getFarmerId()) {
+            if (Long.parseLong(userDetails.getUsername()) != order.getBookerId()) {
                 throw new AccessDeniedException("You are not the booker associated with this order. You are not allowed to mark it as finished.");
             }
             if (order.getStatus() != OrderStatus.ASSIGNED) {
@@ -171,6 +171,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(status);
+        notificationService.sendNotification(userDetails.getUsername(), "Your order #" + order.getId() + " has been set to " + status);
         return orderRepository.save(order);
     }
 
@@ -181,7 +182,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAssignedSprayerIds(sprayerIds);
         order.setStatus(OrderStatus.ASSIGNED);
         Order savedOrder = orderRepository.save(order);
-        UserDto user = userService.getUserById(order.getFarmerId());
+        UserDto user = userService.getUserById(order.getBookerId());
 
 
         List<UserDto> sprayers = sprayerIds.stream().map(sprayerId -> {
@@ -192,18 +193,29 @@ public class OrderServiceImpl implements OrderService {
             }
         }).toList();
 
-        emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: " + sprayers.stream().map(sprayer -> sprayer.getFullName() + " ") );
+        emailService.sendEmail(user.getEmailAddress(), "Order Confirmation",
+                "Hello, " + user.getFullName() + "\n" +
+                "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: \n" + sprayers.stream().map(sprayer -> sprayer.getFullName() + " \n")
+        );
+        notificationService.sendNotification(String.valueOf(user.getId()), "Your order #" + order.getId() + " has been assigned to sprayers.");
 
         sprayers.stream().map(sprayer -> {
             emailService.sendEmail(sprayer.getEmailAddress(), "Order Assign",
-                    "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
+                    "Hello, " + sprayer.getFullName() + "\n" +
+                            "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
                             "Farmer Information: \n" +
-                            "Full name: " + user.getFullName() + "\n" +
+                            "Full name: " + order.getFarmerName() + "\n" +
                             "Location: " + order.getLocation() + "\n" +
-                            "Phone Number: " + user.getPhoneNumber()
+                            "Phone Number: " + order.getFarmerPhoneNumber()
             );
+            try {
+                notificationService.sendNotification(String.valueOf(sprayer.getId()), "You have been assigned to order #" + order.getId());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             return null;
         });
+
         return savedOrder;
     }
 
@@ -267,7 +279,7 @@ public class OrderServiceImpl implements OrderService {
     public String createPayment(Long id, String successUrl, String cancelUrl) throws Exception {
         UserDetails userDetails = UtilFunctions.getUserDetails();
         OrderDto orderDto = getOrderById(id);
-        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
+        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getBookerId()))) {
             throw new BadCredentialsException("You are not the farmer associated with this order");
         }
 
@@ -289,7 +301,7 @@ public class OrderServiceImpl implements OrderService {
     public String executePayment(Long id, String paymentId, String payerId) throws Exception {
         UserDetails userDetails = UtilFunctions.getUserDetails();
         OrderDto orderDto = getOrderById(id);
-        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getFarmerId()))) {
+        if (!userDetails.getUsername().equals(String.valueOf(orderDto.getBookerId()))) {
             throw new BadCredentialsException("You are not the farmer associated with this order");
         }
 

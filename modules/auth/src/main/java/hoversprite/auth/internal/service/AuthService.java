@@ -1,5 +1,6 @@
 package hoversprite.auth.internal.service;
 
+import hoversprite.auth.external.service.JwtService;
 import hoversprite.auth.internal.dto.AuthDTO;
 import hoversprite.auth.internal.dto.RegisterRequestDTO;
 import hoversprite.auth.internal.dto.SignInRequestDTO;
@@ -25,7 +26,7 @@ public class AuthService {
     public AuthDTO register(RegisterRequestDTO dto) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(dto.getPassword());
-        UserDto newUserDto = userService.createUser(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
+        UserDto newUserDto = userService.createUser(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getLocation(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), encryptedPassword);
 
         return new AuthDTO(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
     }

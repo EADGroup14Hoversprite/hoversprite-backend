@@ -26,6 +26,7 @@
         <module>email</module>
         <module>feedback</module>
         <module>payment</module>
+        <module>notification</module>
     </modules>
 
 </project>

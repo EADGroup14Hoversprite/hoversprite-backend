@@ -1,4 +1,5 @@
 module auth {
+    exports hoversprite.auth.external.service;
     requires user;
     requires common;
     requires spring.beans;
@@ -14,4 +15,5 @@ module auth {
     requires io.swagger.v3.oas.annotations;
     requires jakarta.validation;
     requires spring.security.config;
+    requires io.swagger.v3.oas.models;
 }

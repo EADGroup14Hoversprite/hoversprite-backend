@@ -9,8 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>order</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>notification</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
@@ -26,25 +25,7 @@
         </dependency>
         <dependency>
             <groupId>enterprise</groupId>
-            <artifactId>email</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>enterprise</groupId>
-            <artifactId>user</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>enterprise</groupId>
-            <artifactId>payment</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>enterprise</groupId>
-            <artifactId>notification</artifactId>
+            <artifactId>auth</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

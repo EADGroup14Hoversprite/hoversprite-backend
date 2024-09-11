@@ -1,5 +1,6 @@
 package hoversprite.auth.internal.dto;
 
+import hoversprite.common.external.type.Location;
 import lombok.*;
 import hoversprite.common.external.enums.Expertise;
 import hoversprite.common.external.enums.UserRole;
@@ -20,6 +21,10 @@ public class RegisterRequestDTO {
     @Email(message = "Invalid email address format")
     @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+\\.(com|vn)$", message = "Email must follow the format with a domain of @hoversprite and end with .com or .vn.")
     private String emailAddress;
+
+    private String homeAddress;
+
+    private Location location;
 
     private UserRole userRole;
 

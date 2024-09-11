@@ -7,7 +7,16 @@ import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 @Data
 @AllArgsConstructor
 public class CreateFeedbackRequestDto {
-    String content;
 
-    FeedbackSatisfactionRating satisfactionRating;
+    private Long orderId;
+
+    private String content;
+
+    private FeedbackSatisfactionRating satisfactionRating;
+
+    private Integer attentive;
+
+    private Integer friendly;
+
+    private Integer professional;
 }

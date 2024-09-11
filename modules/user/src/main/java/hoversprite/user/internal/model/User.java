@@ -2,6 +2,7 @@ package hoversprite.user.internal.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import hoversprite.common.external.type.Location;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +41,12 @@ public class User implements UserDto, UserDetails {
 
     @Column(nullable = false, unique = true)
     private String emailAddress;
+
+    @Column(nullable = false)
+    private String homeAddress;
+
+    @Embedded
+    private Location location;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -14,6 +14,7 @@ import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 import hoversprite.feedback.external.service.FeedbackService;
 import hoversprite.common.external.util.UtilFunctions;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -24,13 +25,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Autowired
     private OrderService orderService;
 
-    public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating) throws Exception {
+    public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating, Integer attentive, Integer friendly, Integer professional) throws Exception {
         OrderDto orderDto = orderService.getOrderById(orderId);
         UserDetails userDetails = UtilFunctions.getUserDetails();
-        if (!Objects.equals(orderDto.getFarmerId(), Long.valueOf(userDetails.getUsername()))) {
-            throw new BadRequestException("You are not the farmer associated with this order.");
+        if (!Objects.equals(orderDto.getBookerId(), Long.valueOf(userDetails.getUsername()))) {
+            throw new BadRequestException("You are not the booker associated with this order.");
         }
-        Feedback feedback = new Feedback(null, orderId, content, satisfactionRating);
+        Feedback feedback = new Feedback(null, orderId, content, satisfactionRating, attentive, friendly, professional);
         return feedbackRepository.save(feedback);
     }
 
@@ -39,5 +40,9 @@ public class FeedbackServiceImpl implements FeedbackService {
     public FeedbackDto getFeedbackById(Long id) {
         return feedbackRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Feedback with this id not found"));
+    }
+
+    public List<FeedbackDto> getFeedbacksByOrderId(Long orderId) {
+        return feedbackRepository.findAllByOrderId(orderId).stream().map(entity -> (FeedbackDto) entity).toList();
     }
 }
