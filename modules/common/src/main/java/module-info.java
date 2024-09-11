@@ -18,6 +18,7 @@ module common {
     requires com.ibm.icu;
     requires spring.tx;
     requires rest.api.sdk;
+    requires spring.context.support;
 
     exports shared.enums;
     exports shared.types;

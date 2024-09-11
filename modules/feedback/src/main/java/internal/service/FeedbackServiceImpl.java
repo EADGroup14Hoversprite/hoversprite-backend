@@ -12,7 +12,7 @@ import shared.dtos.OrderDto;
 import shared.enums.FeedbackSatisfactionRating;
 import shared.services.FeedbackService;
 import shared.services.OrderService;
-import shared.utils.UtilFunction;
+import shared.utils.UtilFunctions;
 
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating) throws Exception {
         OrderDto orderDto = orderService.getOrderById(orderId);
-        UserDetails userDetails = UtilFunction.getUserDetails();
+        UserDetails userDetails = UtilFunctions.getUserDetails();
         if (!Objects.equals(orderDto.getFarmerId(), Long.valueOf(userDetails.getUsername()))) {
             throw new BadRequestException("You are not the farmer associated with this order.");
         }

@@ -31,8 +31,6 @@ public interface OrderDto {
 
     List<Long> getAssignedSprayerIds();
 
-    Integer getSession();
-
     LocalDate getCreatedAt();
 
     LocalDate getUpdatedAt();
