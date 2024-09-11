@@ -14,4 +14,5 @@ module auth {
     requires io.swagger.v3.oas.annotations;
     requires jakarta.validation;
     requires spring.security.config;
+    requires io.swagger.v3.oas.models;
 }

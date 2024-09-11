@@ -55,9 +55,8 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderDto createOrder(Long farmerId, CropType cropType, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
 
-        // Remember to check if a slot is count as full when there are 2 confirmed orders or 2 pending orders
-        Long numOrders = orderRepository.countByDesiredDateAndTimeSlot(desiredDate, timeSlot);
-        if (numOrders >= 2) {
+        List<Order> numOrders = orderRepository.getPendingOrdersByDesiredDateAndTimeSlot(desiredDate, timeSlot);
+        if (numOrders.size() >= 2) {
             throw new DataIntegrityViolationException("Maximum number of order for this time slot has been reached");
         }
 
