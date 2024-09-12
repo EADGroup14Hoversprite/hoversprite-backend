@@ -64,7 +64,7 @@ public class ControllerExceptionHandler {
         List<String> errors = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
         StringBuilder res = new StringBuilder();
         for (String err : errors) {
-            res.append(err).append("\n");
+            res.append(err).append(". ");
         }
         return new ResponseEntity<>(new ErrorResponseDto(res.toString()), HttpStatus.BAD_REQUEST);
     }

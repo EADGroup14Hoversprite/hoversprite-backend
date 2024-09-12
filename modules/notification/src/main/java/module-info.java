@@ -14,4 +14,5 @@ module notification {
     requires com.fasterxml.jackson.databind;
     requires spring.security.config;
     requires spring.security.core;
+    requires java.management;
 }

@@ -19,7 +19,7 @@ public class RegisterRequestDTO {
     private String phoneNumber;
 
     @Email(message = "Invalid email address format")
-    @Pattern(regexp = "^[\\w.-]+@hoversprite\\.[\\w.-]+\\.(com|vn)$", message = "Email must follow the format with a domain of @hoversprite and end with .com or .vn.")
+    @Pattern(regexp = "^[\\w.-]+@hoversprite\\.(com|vn)$", message = "Email must follow the format with a domain of @hoversprite.com or @hoversprite.vn.")
     private String emailAddress;
 
     private String homeAddress;
@@ -32,7 +32,7 @@ public class RegisterRequestDTO {
 
     private String username;
 
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$", message = "Password must contain at least 1 number and 1 special character")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]{6,}$", message = "Password must be at least 6 characters long, contain at least 1 number, and 1 special character")
     private String password;
 
 }

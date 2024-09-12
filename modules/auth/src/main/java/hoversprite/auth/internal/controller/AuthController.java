@@ -6,6 +6,7 @@ import hoversprite.auth.internal.dto.RegisterRequestDTO;
 import hoversprite.auth.internal.dto.SignInRequestDTO;
 import hoversprite.auth.internal.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO dto) throws Exception {
+    ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) throws Exception {
         AuthDTO authDto = authService.register(dto);
         return new ResponseEntity<>(new AuthResponseDTO("User registered successfully", authDto), HttpStatus.CREATED);
     }
