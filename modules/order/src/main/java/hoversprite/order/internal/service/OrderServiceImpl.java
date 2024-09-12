@@ -75,9 +75,11 @@ public class OrderServiceImpl implements OrderService {
                         "This email is to confirm that you have booked a spraying order at Hoversprite\n" +
                         "Below is the details of your order: \n" +
                         "Order ID: " + savedOrder.getId() + "\n" +
+                        "Farmer name: " + savedOrder.getFarmerName() + "\n" +
+                        "Farmer phone number: " + savedOrder.getFarmerPhoneNumber() + "\n" +
                         "Crop Type: " + savedOrder.getCropType() + "\n" +
                         "Desired Date (Gregorian): " + savedOrder.getDesiredDate() + "\n" +
-                        "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()).toString() + "\n" +
+                        "Desired Date (Lunar): " + new LunarDate(savedOrder.getDesiredDate()) + "\n" +
                         "Total Cost: " + savedOrder.getTotalCost() + "\n" +
                         "Time slot: " + savedOrder.getTimeSlot().toString() + "\n" +
                         "Status: " + savedOrder.getStatus() + "\n" +
@@ -102,8 +104,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll().stream().map(entity -> (OrderDto) entity).toList();
     }
 
-    @Override
-    public List<OrderDto> getOrdersByFarmerId() throws Exception {
+    public List<OrderDto> getOrdersByBookerId() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
@@ -122,22 +123,23 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
 
         if(status == OrderStatus.CONFIRMED) {
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only receptionists are allowed to confirm an order");
             }
             if (order.getStatus() != OrderStatus.PENDING) {
                 throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
             }
+
             UserDto user = userService.getUserById(order.getBookerId());
 
             emailService.sendEmail(user.getEmailAddress(), "Order Confirmation", "This is an email to inform you that order #" + order.getId() + " has been confirmed and we are looking for suitable sprayers to assign.");
         }
 
         if(status == OrderStatus.IN_PROGRESS) {
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_SPRAYER.name()))) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_SPRAYER.name()))) {
                 throw new AccessDeniedException("Only sprayers are allowed to start the spraying process of an order.");
             }
-            if (order.getAssignedSprayerIds().contains(Long.parseLong(userDetails.getUsername()))) {
+            if (!order.getAssignedSprayerIds().contains(Long.parseLong(userDetails.getUsername()))) {
                 throw new AccessDeniedException("You are not assigned to this order. You cannot mark it as in progress.");
             }
             if (order.getStatus() != OrderStatus.ASSIGNED) {
@@ -146,29 +148,30 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if(status == OrderStatus.FINISHED) {
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name())) || userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name())) && !userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only farmers or receptionists are allowed to confirmed that the spraying session is finished.");
             }
             if (Long.parseLong(userDetails.getUsername()) != order.getBookerId()) {
                 throw new AccessDeniedException("You are not the booker associated with this order. You are not allowed to mark it as finished.");
             }
-            if (order.getStatus() != OrderStatus.ASSIGNED) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only start an assigned orders.");
+            if (order.getStatus() != OrderStatus.IN_PROGRESS) {
+                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only finish an order in progress.");
             }
         }
 
         if(status == OrderStatus.COMPLETED) {
-            if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only receptionists are allowed to complete an order.");
             }
 
+            if (order.getStatus() != OrderStatus.FINISHED) {
+                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only complete a finished order.");
+            }
+            
             if(!order.getPaymentStatus()) {
                 throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
             }
 
-            if (order.getStatus() != OrderStatus.FINISHED) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only start an assigned orders.");
-            }
         }
 
         order.setStatus(status);
@@ -206,8 +209,8 @@ public class OrderServiceImpl implements OrderService {
                             "This is an email to inform you that you have been assigned to order #" + order.getId() + "\n" +
                             "Farmer Information: \n" +
                             "Full name: " + order.getFarmerName() + "\n" +
-                            "Location: " + order.getLocation() + "\n" +
-                            "Phone Number: " + order.getFarmerPhoneNumber()
+                            "Phone Number: " + order.getFarmerPhoneNumber() + "\n" +
+                            "Location: " + order.getLocation() + "\n"
             );
             try {
                 notificationService.sendNotificationToUser(String.valueOf(sprayer.getId()), "You have been assigned to order #" + order.getId());
@@ -332,6 +335,11 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         return "Cash payment confirmed for order #" + orderDto.getId();
+    }
+
+    public List<OrderDto> getOrdersBySprayerId() throws Exception {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        return orderRepository.findAllOrdersByAssignedSprayerIds(Long.valueOf(userDetails.getUsername())).stream().map(entity -> (OrderDto) entity).toList();
     }
 
 }

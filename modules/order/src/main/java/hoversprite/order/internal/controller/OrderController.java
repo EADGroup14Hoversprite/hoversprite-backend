@@ -48,21 +48,21 @@ class OrderController {
         return new ResponseEntity<>(new AssignSprayerResponseDto("Assigned sprayers to order successfully", orderDto), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     ResponseEntity<GetOrderResponseDto> getOrderById(@PathVariable Long id) throws Exception {
         OrderDto orderDto = orderService.getOrderById(id);
         return new ResponseEntity<>(new GetOrderResponseDto("Order retrieved successfully", orderDto), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER') and hasRole('FARMER')")
+    @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @GetMapping("/my-orders")
-    ResponseEntity<GetOrdersByFarmerIdResponseDto> getOrdersByFarmerId() throws Exception {
-        List<OrderDto> orderDtos = orderService.getOrdersByFarmerId();
-        return new ResponseEntity<>(new GetOrdersByFarmerIdResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
+    ResponseEntity<GetOrdersByBookerIdResponseDto> getOrdersByBookerId() throws Exception {
+        List<OrderDto> orderDtos = orderService.getOrdersByBookerId();
+        return new ResponseEntity<>(new GetOrdersByBookerIdResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/by-date-range")
     ResponseEntity<GetOrdersResponseDto> getOrdersByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         List<OrderDto> orderDtos = orderService.getOrdersWithinDateRange(startDate, endDate);
@@ -106,6 +106,12 @@ class OrderController {
         return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getAllOrders()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
+    @GetMapping("/assigned")
+    ResponseEntity<GetOrdersResponseDto> getOrdersBySprayerId() throws Exception {
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getOrdersBySprayerId()), HttpStatus.OK);
+    }
+
 //    @PreAuthorize("hasRole('USER')")
 //    @GetMapping("/paging")
 //    ResponseEntity<GetOrdersResponseDto> getAllOrdersPaginated(@RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String pageSize) {
@@ -113,3 +119,13 @@ class OrderController {
 //    }
 
 }
+
+//farmer1
+//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9GQVJNRVIiLCJzdWIiOiI1IiwiaWF0IjoxNzI2MTI1ODMyLCJleHAiOjE3MjYxMjk0MzJ9.Jwh3dp2e3b9DWnNrfKfU08P3B2ZzUsh3rXq3lx4r1Pbsv-4FaVcsmI7CJaOSYZGO
+//
+//receptionist1
+//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9SRUNFUFRJT05JU1QiLCJzdWIiOiI2IiwiaWF0IjoxNzI2MTI1OTE5LCJleHAiOjE3MjYxMjk1MTl9.id6ldEhJVozACGcw1flJ3Tli-XMbuXBSrb4HdChEmWO4Z2IczQz-jY-E86NOONHK
+//
+//sprayer1 id 7
+//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9TUFJBWUVSIiwic3ViIjoiNyIsImlhdCI6MTcyNjEyNTk3OSwiZXhwIjoxNzI2MTI5NTc5fQ.Y8DZS13XyNL2ZvYco3ekBXtyCizQMlBtOAoz84C0scjNlt0cBCMuIk0z2lQG1BVd
+
