@@ -86,7 +86,8 @@ public class OrderServiceImpl implements OrderService {
                         "Thank you for using Hoversprite!"
         );
 
-        notificationService.sendNotification(String.valueOf(user.getId()), "Your order #" + savedOrder.getId() + " has been created.");
+        notificationService.sendNotificationToUser(String.valueOf(user.getId()), "Your order #" + savedOrder.getId() + " has been created.");
+        notificationService.broadcastNotificationToAllUsersExceptTrigger(String.valueOf(user.getId()), "A new order has been added. Please refetch for updated orders list.");
 
         return savedOrder;
     }
@@ -171,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(status);
-        notificationService.sendNotification(userDetails.getUsername(), "Your order #" + order.getId() + " has been set to " + status);
+        notificationService.sendNotificationToUser(userDetails.getUsername(), "Your order #" + order.getId() + " has been set to " + status);
         return orderRepository.save(order);
     }
 
@@ -197,7 +198,7 @@ public class OrderServiceImpl implements OrderService {
                 "Hello, " + user.getFullName() + "\n" +
                 "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: \n" + sprayers.stream().map(sprayer -> sprayer.getFullName() + " \n")
         );
-        notificationService.sendNotification(String.valueOf(user.getId()), "Your order #" + order.getId() + " has been assigned to sprayers.");
+        notificationService.sendNotificationToUser(String.valueOf(user.getId()), "Your order #" + order.getId() + " has been assigned to sprayers.");
 
         sprayers.stream().map(sprayer -> {
             emailService.sendEmail(sprayer.getEmailAddress(), "Order Assign",
@@ -209,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
                             "Phone Number: " + order.getFarmerPhoneNumber()
             );
             try {
-                notificationService.sendNotification(String.valueOf(sprayer.getId()), "You have been assigned to order #" + order.getId());
+                notificationService.sendNotificationToUser(String.valueOf(sprayer.getId()), "You have been assigned to order #" + order.getId());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -332,6 +333,5 @@ public class OrderServiceImpl implements OrderService {
 
         return "Cash payment confirmed for order #" + orderDto.getId();
     }
-
 
 }

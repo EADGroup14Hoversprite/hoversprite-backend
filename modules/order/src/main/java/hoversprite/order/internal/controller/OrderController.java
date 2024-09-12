@@ -106,4 +106,10 @@ class OrderController {
         return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getAllOrders()), HttpStatus.OK);
     }
 
+//    @PreAuthorize("hasRole('USER')")
+//    @GetMapping("/paging")
+//    ResponseEntity<GetOrdersResponseDto> getAllOrdersPaginated(@RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String pageSize) {
+//        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", ));
+//    }
+
 }
