@@ -12,4 +12,6 @@ public interface OrderService {
     OrderDto updateOrderStatus(Long id, OrderStatus status) throws Exception;
 
     OrderDto assignSprayer(Long id, List<Long> sprayerIds) throws Exception;
+
+    OrderDto updateOrderFeedback(Long id);
 }
