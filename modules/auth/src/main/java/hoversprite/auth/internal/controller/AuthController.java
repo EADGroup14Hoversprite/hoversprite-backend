@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import hoversprite.auth.internal.dto.*;
 import hoversprite.auth.internal.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @Tag(name = "Auth API")
 @RestController
@@ -31,15 +34,18 @@ class AuthController {
         return new ResponseEntity<>(new AuthResponseDto("User signed in successfully", authDTO), HttpStatus.CREATED);
     }
 
-//    @GetMapping("/google/redirect")
-//    ResponseEntity<OAuthUrlResponseDto> getGoogleOAuthUrl() {
-//        return new ResponseEntity<>(new OAuthUrlResponseDto(authService.getOAuthGoogleUrl()), HttpStatus.OK);
-//    }
+    @GetMapping("/google/redirect")
+    ResponseEntity<OAuthUrlResponseDto> getGoogleOAuthUrl() {
+        return new ResponseEntity<>(new OAuthUrlResponseDto(authService.getOAuthGoogleUrl()), HttpStatus.OK);
+    }
 
     @GetMapping("/google/callback")
-    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String email) throws JsonProcessingException {
-        AuthDto authDto = authService.handleGoogleCallback(email);
-        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
+    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String code) throws JsonProcessingException {
+        AuthDto authDto = authService.handleGoogleCallback(code);
+//        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("http://localhost:3000/auth/google/callback"))
+                .build();
     }
 
 }
