@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class CreateFeedbackRequestDto {
@@ -19,4 +21,7 @@ public class CreateFeedbackRequestDto {
     private Integer friendly;
 
     private Integer professional;
+
+    private List<String> imageUrls;
+
 }

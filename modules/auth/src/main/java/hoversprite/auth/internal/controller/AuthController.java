@@ -31,19 +31,15 @@ class AuthController {
         return new ResponseEntity<>(new AuthResponseDto("User signed in successfully", authDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/google/redirect")
-    ResponseEntity<OAuthUrlResponseDto> getGoogleOAuthUrl() {
-        return new ResponseEntity<>(new OAuthUrlResponseDto(authService.getOAuthGoogleUrl()), HttpStatus.OK);
-    }
+//    @GetMapping("/google/redirect")
+//    ResponseEntity<OAuthUrlResponseDto> getGoogleOAuthUrl() {
+//        return new ResponseEntity<>(new OAuthUrlResponseDto(authService.getOAuthGoogleUrl()), HttpStatus.OK);
+//    }
 
     @GetMapping("/google/callback")
-    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String code) throws JsonProcessingException {
-        AuthDto authDto = authService.handleGoogleCallback(code);
-        if (authDto != null) {
-            return new ResponseEntity<>(new AuthResponseDto("User signed in with Google successfully.", authDto), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new AuthResponseDto("User is not registered in Hoversprite. Proceed to register account.", null), HttpStatus.OK);
-        }
+    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String email) throws JsonProcessingException {
+        AuthDto authDto = authService.handleGoogleCallback(email);
+        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
     }
 
 }
