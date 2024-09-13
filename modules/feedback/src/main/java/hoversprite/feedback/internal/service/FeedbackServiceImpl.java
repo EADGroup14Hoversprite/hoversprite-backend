@@ -25,14 +25,14 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Autowired
     private OrderService orderService;
 
-    public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating, Integer attentive, Integer friendly, Integer professional) throws Exception {
+    public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating, Integer attentive, Integer friendly, Integer professional, List<String> imageUrls) throws Exception {
         OrderDto orderDto = orderService.getOrderById(orderId);
         orderService.updateOrderFeedback(orderDto.getId());
         UserDetails userDetails = UtilFunctions.getUserDetails();
         if (!Objects.equals(orderDto.getBookerId(), Long.valueOf(userDetails.getUsername()))) {
             throw new BadRequestException("You are not the booker associated with this order.");
         }
-        Feedback feedback = new Feedback(null, orderId, content, satisfactionRating, attentive, friendly, professional);
+        Feedback feedback = new Feedback(null, orderId, content, satisfactionRating, attentive, friendly, professional, imageUrls);
         return feedbackRepository.save(feedback);
     }
 

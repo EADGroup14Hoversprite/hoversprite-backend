@@ -15,6 +15,5 @@ public class LocalDateToEpochSerializer extends JsonSerializer<LocalDate> {
             long epoch = localDate.atStartOfDay(ZoneOffset.UTC).toEpochSecond();
             jsonGenerator.writeNumber(epoch);
         }
-
     }
 }

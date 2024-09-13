@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import hoversprite.feedback.external.dto.FeedbackDto;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 
+import java.util.List;
+
 @Entity
 @Table(name = "feedbacks")
 @Data
@@ -34,4 +36,7 @@ public class Feedback implements FeedbackDto {
 
     @Column(nullable = false)
     private Integer professional;
+
+    @Column(nullable = false)
+    private List<String> imageUrls;
 }

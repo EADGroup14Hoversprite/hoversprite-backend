@@ -58,58 +58,58 @@ public class AuthService {
         return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
     }
 
-    public String getOAuthGoogleUrl() {
-        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
-        String authUri = googleRegistration.getProviderDetails().getAuthorizationUri();
-        String clientId = googleRegistration.getClientId();
-        String redirectUri = googleRegistration.getRedirectUri();
-        String scope = URLEncoder.encode("openid profile email", StandardCharsets.UTF_8);
+//    public String getOAuthGoogleUrl() {
+//        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
+//        String authUri = googleRegistration.getProviderDetails().getAuthorizationUri();
+//        String clientId = googleRegistration.getClientId();
+//        String redirectUri = googleRegistration.getRedirectUri();
+//        String scope = URLEncoder.encode("openid profile email", StandardCharsets.UTF_8);
+//
+//        return String.format("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=%s",
+//                authUri, clientId, redirectUri, scope);
+//    }
 
-        return String.format("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=%s",
-                authUri, clientId, redirectUri, scope);
-    }
-
-    public AuthDto handleGoogleCallback(String code) throws JsonProcessingException {
-        RestTemplate restTemplate = new RestTemplate();
-        String tokenUri = "https://oauth2.googleapis.com/token";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
-        String clientId = googleRegistration.getClientId();
-        String clientSecret = googleRegistration.getClientSecret();
-        String redirectUri = googleRegistration.getRedirectUri();
-
-        String body = String.format("code=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=authorization_code", code, clientId, clientSecret, redirectUri);
-
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> tokenResponse = restTemplate.exchange(tokenUri, HttpMethod.POST, request, String.class);
-
-        if (tokenResponse.getStatusCode().isError()) {
-            throw new IllegalArgumentException("Invalid authorization code or request.");
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        GoogleTokenResponseDto tokenResponseDto = objectMapper.readValue(tokenResponse.getBody(), GoogleTokenResponseDto.class);
-
-        String userInfoUri = "https://www.googleapis.com/oauth2/v3/userinfo";
-        headers = new HttpHeaders();
-        headers.setBearerAuth(tokenResponseDto.getAccessToken());
-
-        request = new HttpEntity<>(headers);
-        ResponseEntity<String> infoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, request, String.class);
-
-        GoogleInfoResponseDto infoResponseDto = objectMapper.readValue(infoResponse.getBody(), GoogleInfoResponseDto.class);
-
-        String email = infoResponseDto.getEmail();
-        String fullName = infoResponseDto.getName();
+    public AuthDto handleGoogleCallback(String email) throws JsonProcessingException {
+//        RestTemplate restTemplate = new RestTemplate();
+//        String tokenUri = "https://oauth2.googleapis.com/token";
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//
+//        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
+//        String clientId = googleRegistration.getClientId();
+//        String clientSecret = googleRegistration.getClientSecret();
+//        String redirectUri = googleRegistration.getRedirectUri();
+//
+//        String body = String.format("code=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=authorization_code", code, clientId, clientSecret, redirectUri);
+//
+//        HttpEntity<String> request = new HttpEntity<>(body, headers);
+//        ResponseEntity<String> tokenResponse = restTemplate.exchange(tokenUri, HttpMethod.POST, request, String.class);
+//
+//        if (tokenResponse.getStatusCode().isError()) {
+//            throw new IllegalArgumentException("Invalid authorization code or request.");
+//        }
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        GoogleTokenResponseDto tokenResponseDto = objectMapper.readValue(tokenResponse.getBody(), GoogleTokenResponseDto.class);
+//
+//        String userInfoUri = "https://www.googleapis.com/oauth2/v3/userinfo";
+//        headers = new HttpHeaders();
+//        headers.setBearerAuth(tokenResponseDto.getAccessToken());
+//
+//        request = new HttpEntity<>(headers);
+//        ResponseEntity<String> infoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, request, String.class);
+//
+//        GoogleInfoResponseDto infoResponseDto = objectMapper.readValue(infoResponse.getBody(), GoogleInfoResponseDto.class);
+//
+//        String email = infoResponseDto.getEmail();
+//        String fullName = infoResponseDto.getName();
 
         try {
             UserDto userDto = userService.getUserByEmailAddressOrPhoneNumber(email);
             return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
         } catch (Exception e) {
-            return new AuthDto(null, fullName, null, email, null, null, null, null);
+            return null;
         }
     }
 }

@@ -57,8 +57,8 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @GetMapping("/my-orders")
-    ResponseEntity<GetOrdersByBookerIdResponseDto> getOrdersByBookerId() throws Exception {
-        List<OrderDto> orderDtos = orderService.getOrdersByBookerId();
+    ResponseEntity<GetOrdersByBookerIdResponseDto> getOrdersByBookerId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "status") String sortBy, @RequestParam(defaultValue = "ASC") String sortDirection) throws Exception {
+        List<OrderDto> orderDtos = orderService.getOrdersByBookerId(page, pageSize, sortBy, sortDirection);
         return new ResponseEntity<>(new GetOrdersByBookerIdResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
     }
 
@@ -102,8 +102,8 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
     @GetMapping()
-    ResponseEntity<GetOrdersResponseDto> getAllOrders() {
-        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getAllOrders()), HttpStatus.OK);
+    ResponseEntity<GetOrdersResponseDto> getAllOrders(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "status") String sortBy, @RequestParam(defaultValue = "ASC") String sortDirection) {
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getAllOrders(page, pageSize, sortBy, sortDirection)), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")

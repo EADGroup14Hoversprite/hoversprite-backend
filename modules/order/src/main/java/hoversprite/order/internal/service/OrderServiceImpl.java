@@ -17,6 +17,9 @@ import hoversprite.user.external.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -100,20 +103,22 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
     }
 
-    public List<OrderDto> getAllOrders() {
-        return orderRepository.findAll().stream().map(entity -> (OrderDto) entity).toList();
+    public List<OrderDto> getAllOrders(int page, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        return orderRepository.findAll(pageable).stream().map(entity -> (OrderDto) entity).toList();
     }
 
-    public List<OrderDto> getOrdersByBookerId() throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AuthenticationCredentialsNotFoundException("No credentials found for current user");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    public List<OrderDto> getOrdersByBookerId(int page, int pageSize, String sortBy, String sortDirection) throws Exception {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        List<OrderDto> orderDtos = orderRepository.findAllByBookerId(currentUserId).stream().map(entity -> (OrderDto) entity).toList();
-        System.out.println(orderDtos);
-        return orderDtos;
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        return orderRepository.findAllByBookerId(currentUserId, pageable).stream().map(entity -> (OrderDto) entity).toList();
     }
 
     @Override
