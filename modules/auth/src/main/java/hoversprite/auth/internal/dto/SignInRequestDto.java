@@ -3,7 +3,7 @@ package hoversprite.auth.internal.dto;
 import lombok.Data;
 
 @Data
-public class SignInRequestDTO {
+public class SignInRequestDto {
 
     private String emailOrPhone;
 

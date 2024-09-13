@@ -27,6 +27,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating, Integer attentive, Integer friendly, Integer professional) throws Exception {
         OrderDto orderDto = orderService.getOrderById(orderId);
+        orderService.updateOrderFeedback(orderDto.getId());
         UserDetails userDetails = UtilFunctions.getUserDetails();
         if (!Objects.equals(orderDto.getBookerId(), Long.valueOf(userDetails.getUsername()))) {
             throw new BadRequestException("You are not the booker associated with this order.");

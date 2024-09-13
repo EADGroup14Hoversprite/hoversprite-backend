@@ -10,12 +10,12 @@ import jakarta.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDTO {
+public class RegisterRequestDto {
 
     @Pattern(regexp = "^[A-Z][a-z]*[A-Z][a-z]+$", message = "Full name must cannot have more than 2 non-adjacent capitalized letters")
     private String fullName;
 
-    @Pattern(regexp = "^(0|\\+84)\\s?\\d{3}\\s?\\d{3}\\s?\\d{3,4}$", message = "Phone number must starts with 0 or +84")
+    @Pattern(regexp = "^(0|\\+84)\\s?\\d{3}\\s?\\d{3}\\s?\\d{3,4}$", message = "Phone number must start with 0 or +84, followed by nine or ten digits, and can include spaces. For example: 0862 123 456, +84 862 123 456, or 0862123456.")
     private String phoneNumber;
 
     @Email(message = "Invalid email address format")

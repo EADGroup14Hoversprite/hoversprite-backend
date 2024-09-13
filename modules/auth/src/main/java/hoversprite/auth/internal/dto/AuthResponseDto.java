@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponseDTO {
+public class AuthResponseDto {
 
     private String message;
 
-    private AuthDTO dto;
+    private AuthDto dto;
 }

@@ -74,6 +74,8 @@ public class Order implements OrderDto {
     @ElementCollection
     private List<Long> assignedSprayerIds;
 
+    private Boolean hasFeedback;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     @JsonSerialize(using = LocalDateToEpochSerializer.class)

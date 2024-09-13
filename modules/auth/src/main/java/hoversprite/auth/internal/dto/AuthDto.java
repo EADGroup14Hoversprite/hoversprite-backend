@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class AuthDTO {
+public class AuthDto {
 
     private Long id;
 

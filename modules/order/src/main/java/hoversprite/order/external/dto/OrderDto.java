@@ -3,6 +3,7 @@ package hoversprite.order.external.dto;
 import hoversprite.common.external.enums.CropType;
 import hoversprite.common.external.enums.OrderSlot;
 import hoversprite.common.external.enums.OrderStatus;
+import hoversprite.common.external.enums.PaymentMethod;
 import hoversprite.common.external.type.Location;
 
 import java.time.LocalDate;
@@ -36,6 +37,8 @@ public interface OrderDto {
     LocalDate getUpdatedAt();
 
     Boolean getPaymentStatus();
+
+    PaymentMethod getPaymentMethod();
 
     String getFarmerName();
 

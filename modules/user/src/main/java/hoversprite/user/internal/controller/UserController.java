@@ -21,11 +21,16 @@ class UserController {
     @Autowired
     private UserServiceImpl userService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     ResponseEntity<GetUserResponseDto> getUserById(@PathVariable Long id) throws Exception {
-        UserDto dto = userService.getUserById(id);
-        return new ResponseEntity<>(new GetUserResponseDto("User data found", dto), HttpStatus.OK);
+        return new ResponseEntity<>(new GetUserResponseDto("User data found", userService.getUserById(id)), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
+    @GetMapping("/by-phone-number")
+    ResponseEntity<GetUserResponseDto> getUserByPhoneNumber(@RequestParam String phoneNumber) throws Exception {
+        return new ResponseEntity<>(new GetUserResponseDto("User data found", userService.getUserByEmailAddressOrPhoneNumber(phoneNumber)), HttpStatus.OK);
     }
 
 //    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")

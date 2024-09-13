@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
 
         UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        Order order = new Order(null, currentUserId, cropType, farmerName, farmerPhoneNumber, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, PaymentMethod.CASH, OrderStatus.PENDING, false, new ArrayList<>(), null, null);
+        Order order = new Order(null, currentUserId, cropType, farmerName, farmerPhoneNumber, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, PaymentMethod.CASH,userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name())) ? OrderStatus.CONFIRMED : OrderStatus.PENDING, false, new ArrayList<>(), false, null, null);
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getBookerId());
 
@@ -167,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
             if (order.getStatus() != OrderStatus.FINISHED) {
                 throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only complete a finished order.");
             }
-            
+
             if(!order.getPaymentStatus()) {
                 throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
             }
@@ -183,11 +183,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto assignSprayer(Long id, List<Long> sprayerIds) throws Exception {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
-        order.setAssignedSprayerIds(sprayerIds);
-        order.setStatus(OrderStatus.ASSIGNED);
-        Order savedOrder = orderRepository.save(order);
-        UserDto user = userService.getUserById(order.getBookerId());
-
 
         List<UserDto> sprayers = sprayerIds.stream().map(sprayerId -> {
             try {
@@ -196,6 +191,18 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException(e);
             }
         }).toList();
+
+        if (sprayers.size() == 1 && sprayers.getFirst().getExpertise() != Expertise.EXPERT) {
+            throw new BadRequestException("Only expert sprayer can handle a spray session alone. Try again.");
+        } else if (sprayers.size() == 2 && sprayers.getFirst().getExpertise() == Expertise.EXPERT && sprayers.getLast().getExpertise() == Expertise.EXPERT) {
+            throw new BadRequestException("One expert sprayer is enough to handle a spray session.");
+        }
+
+        order.setAssignedSprayerIds(sprayerIds);
+        order.setStatus(OrderStatus.ASSIGNED);
+        Order savedOrder = orderRepository.save(order);
+        UserDto user = userService.getUserById(order.getBookerId());
+
 
         emailService.sendEmail(user.getEmailAddress(), "Order Confirmation",
                 "Hello, " + user.getFullName() + "\n" +
@@ -221,6 +228,14 @@ public class OrderServiceImpl implements OrderService {
         });
 
         return savedOrder;
+    }
+
+    @Override
+    public OrderDto updateOrderFeedback(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order id not found"));
+        order.setHasFeedback(true);
+        return orderRepository.save(order);
     }
 
     public List<UserDto> getSuggestedSprayers(Long id, LocalDate startDate, LocalDate endDate) throws Exception {
