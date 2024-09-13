@@ -20,7 +20,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(notificationWebSocketHandler, "/notifications")
                 .setAllowedOrigins("*")
                 .addInterceptors(jwtHandshakeInterceptor);
-
     }
 }
 

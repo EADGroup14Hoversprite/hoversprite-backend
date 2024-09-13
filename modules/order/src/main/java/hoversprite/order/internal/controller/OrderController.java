@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 
@@ -64,8 +66,10 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/by-date-range")
-    ResponseEntity<GetOrdersResponseDto> getOrdersByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        List<OrderDto> orderDtos = orderService.getOrdersWithinDateRange(startDate, endDate);
+    ResponseEntity<GetOrdersResponseDto> getOrdersByDateRange(@RequestParam long startDate, @RequestParam long endDate) {
+        LocalDate startDateConverted = Instant.ofEpochSecond(startDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endDateConverted = Instant.ofEpochSecond(endDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        List<OrderDto> orderDtos = orderService.getOrdersWithinDateRange(startDateConverted, endDateConverted);
         if (orderDtos.isEmpty()) {
             return new ResponseEntity<>(new GetOrdersResponseDto("No orders within time range found", null), HttpStatus.NOT_FOUND);
         }
@@ -74,8 +78,10 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
     @GetMapping("/{id}/suggested-sprayers")
-    ResponseEntity<GetSuggestedSprayersResponseDto> getSuggestedSprayers(@PathVariable Long id, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) throws Exception {
-        List<UserDto> sprayerDtos = orderService.getSuggestedSprayers(id, startDate, endDate);
+    ResponseEntity<GetSuggestedSprayersResponseDto> getSuggestedSprayers(@PathVariable Long id, @RequestParam long startDate, @RequestParam long endDate) throws Exception {
+        LocalDate startDateConverted = Instant.ofEpochSecond(startDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endDateConverted = Instant.ofEpochSecond(endDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        List<UserDto> sprayerDtos = orderService.getSuggestedSprayers(id, startDateConverted, endDateConverted);
         if (sprayerDtos.isEmpty()) {
             return new ResponseEntity<>(new GetSuggestedSprayersResponseDto("No suitable sprayers suggested for this order", null), HttpStatus.CONFLICT);
         }
