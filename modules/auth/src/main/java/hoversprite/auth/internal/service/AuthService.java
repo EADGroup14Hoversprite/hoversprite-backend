@@ -36,9 +36,6 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
-    @Autowired
-    private InMemoryClientRegistrationRepository clientRegistrationRepository;
-
     public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String username, String password) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(password);

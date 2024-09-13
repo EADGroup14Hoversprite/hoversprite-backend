@@ -19,7 +19,7 @@ public class RegisterRequestDto {
     private String phoneNumber;
 
     @Email(message = "Invalid email address format")
-    @Pattern(regexp = "^[\\w.-]+@hoversprite\\.(com|vn)$", message = "Email must follow the format with a domain of @hoversprite.com or @hoversprite.vn.")
+    @Pattern(regexp = "^[\\w.-]+@(hoversprite\\.(com|vn)|gmail\\.com)$", message = "Email must follow the format with a domain of @hoversprite.com, @hoversprite.vn, or @gmail.com.")
     private String emailAddress;
 
     private String homeAddress;
