@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import hoversprite.auth.internal.dto.*;
 import hoversprite.auth.internal.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,19 @@ class AuthController {
     }
 
     @GetMapping("/google/callback")
-    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String code) throws JsonProcessingException {
-        AuthDto authDto = authService.handleGoogleCallback(code);
+    ResponseEntity<Void> handleGoogleCallback(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        Cookie authCookie = authService.handleGoogleCallback(code);
 //        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
+        response.addCookie(authCookie);
+
+        System.out.print(authCookie.getValue());
+        if (authCookie.getValue().contains("accessToken%22%3Anull")) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create("http://localhost:3000/auth/sign-up"))
+                    .build();
+        }
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://localhost:3000/auth/google/callback"))
+                .location(URI.create("http://localhost:3000/orders"))
                 .build();
     }
 

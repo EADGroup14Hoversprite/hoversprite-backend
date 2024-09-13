@@ -1,5 +1,6 @@
 package hoversprite.auth.internal.dto;
 
+import hoversprite.common.external.type.Location;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import hoversprite.common.external.enums.Expertise;
@@ -17,6 +18,10 @@ public class AuthDto {
     private String phoneNumber;
 
     private String emailAddress;
+
+    private String homeAddress;
+
+    private Location location;
 
     private Expertise expertise;
 
