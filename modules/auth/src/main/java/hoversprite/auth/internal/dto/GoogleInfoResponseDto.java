@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GoogleInfoResponseDto {
 
-    private String sub;
+    @JsonProperty("sub")
+    private String id;
 
     private String name;
 
@@ -26,4 +27,5 @@ public class GoogleInfoResponseDto {
 
     @JsonProperty("email_verified")
     private Boolean emailVerified;
+
 }

@@ -61,6 +61,10 @@ public class User implements UserDto, UserDetails {
     @Column(nullable = false)
     private AuthRole authRole;
 
+    private String googleId;
+
+    private String facebookId;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     @JsonSerialize(using = LocalDateToEpochSerializer.class)

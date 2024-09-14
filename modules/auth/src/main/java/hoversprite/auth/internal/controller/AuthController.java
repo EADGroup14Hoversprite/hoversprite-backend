@@ -27,7 +27,7 @@ class AuthController {
 
     @PostMapping("/register")
     ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto dto) throws Exception {
-        AuthDto authDto = authService.register(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getLocation(), dto.getUserRole(), dto.getExpertise(), dto.getPassword());
+        AuthDto authDto = authService.register(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getLocation(), dto.getUserRole(), dto.getGoogleId(), dto.getFacebookId(), dto.getExpertise(), dto.getPassword());
         return new ResponseEntity<>(new AuthResponseDto("User registered successfully", authDto), HttpStatus.CREATED);
     }
 
@@ -53,18 +53,31 @@ class AuthController {
     @GetMapping("/google/callback")
     ResponseEntity<Void> handleGoogleCallback(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         Cookie authCookie = authService.handleGoogleCallback(code);
-//        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
+        return handleOAuthCallbackRedirect(response, authCookie);
+    }
+
+    @GetMapping("/facebook/redirect")
+    ResponseEntity<OAuthUrlResponseDto> getFacebookOAuthUrl() {
+        return new ResponseEntity<>(new OAuthUrlResponseDto(authService.getOAuthFacebookUrl()), HttpStatus.OK);
+    }
+
+    @GetMapping("/facebook/callback")
+    ResponseEntity<Void> handleFacebookCallback(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        Cookie authCookie = authService.handleFacebookCallback(code);
+        return handleOAuthCallbackRedirect(response, authCookie);
+    }
+
+    private ResponseEntity<Void> handleOAuthCallbackRedirect(HttpServletResponse response, Cookie authCookie) {
         response.addCookie(authCookie);
 
         System.out.print(authCookie.getValue());
         if (authCookie.getValue().contains("accessToken%22%3Anull")) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:3000/auth/sign-up"))
+                    .location(URI.create("http://localhost:3000/auth/signup"))
                     .build();
         }
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create("http://localhost:3000/orders"))
                 .build();
     }
-
 }
