@@ -31,4 +31,8 @@ public interface UserDto extends UserDetails {
     String getHomeAddress();
 
     Location getLocation();
+
+    String getGoogleId();
+
+    String getFacebookId();
 }
