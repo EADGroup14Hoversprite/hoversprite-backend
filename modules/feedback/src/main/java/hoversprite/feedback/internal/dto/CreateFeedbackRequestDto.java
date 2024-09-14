@@ -3,6 +3,7 @@ package hoversprite.feedback.internal.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +23,6 @@ public class CreateFeedbackRequestDto {
 
     private Integer professional;
 
-    private List<String> imageUrls;
+    private List<MultipartFile> imageUrls;
 
 }

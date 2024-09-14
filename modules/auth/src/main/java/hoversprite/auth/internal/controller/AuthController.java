@@ -73,7 +73,7 @@ class AuthController {
         System.out.print(authCookie.getValue());
         if (authCookie.getValue().contains("accessToken%22%3Anull")) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:3000/auth/signup"))
+                    .location(URI.create("http://localhost:3000/auth/redirect-register"))
                     .build();
         }
         return ResponseEntity.status(HttpStatus.FOUND)

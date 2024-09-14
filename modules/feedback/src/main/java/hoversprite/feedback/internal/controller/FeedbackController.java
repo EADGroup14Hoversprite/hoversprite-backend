@@ -27,7 +27,7 @@ class FeedbackController {
 
     @PreAuthorize("hasRole('FARMER')")
     @PostMapping()
-    ResponseEntity<CreateFeedbackResponseDto> createFeedback(@RequestBody CreateFeedbackRequestDto dto) throws Exception {
+    ResponseEntity<CreateFeedbackResponseDto> createFeedback(@ModelAttribute CreateFeedbackRequestDto dto) throws Exception {
         FeedbackDto feedbackDto = feedbackService.createFeedback(dto.getOrderId(), dto.getContent(), dto.getSatisfactionRating(), dto.getAttentive(), dto.getFriendly(), dto.getProfessional(), dto.getImageUrls());
         return new ResponseEntity<>(new CreateFeedbackResponseDto("Feedback successfully created", feedbackDto), HttpStatus.CREATED);
     }
