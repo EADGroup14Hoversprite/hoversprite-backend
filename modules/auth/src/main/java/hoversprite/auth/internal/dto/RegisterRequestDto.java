@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Pattern;
 @NoArgsConstructor
 public class RegisterRequestDto {
 
-    @Pattern(regexp = "^(?=\\b[A-Za-z]*[A-Z][a-z]*[A-Z]?[a-z]*\\b)[A-Za-z ]+$", message = "Full name cannot have more than 2 capitalized letters in a word and must contain only letters and spaces")
+    @Pattern(regexp = "^(?!.*[A-Z]{2})(?=.*\\b([A-Za-z]*[A-Z][a-z]*){1,2}\\b)[A-Za-z ]+$", message = "Each word cannot have more than 2 capitalized letters and they cannot be next to each other. The name must contain only letters and spaces.")
     private String fullName;
 
     @Pattern(regexp = "^((\\+84\\s\\d{3}\\s\\d{3}\\s\\d{3})|(0\\d{3}\\s\\d{3}\\s\\d{3})|((\\+84|0)\\d{9}))$", message = "Phone number must start with +84 or 0. If it starts with +84, it should be formatted as +84 888 888 888. If it starts with 0, it should be formatted as 0888 888 888. Otherwise, no spaces should be included.")
