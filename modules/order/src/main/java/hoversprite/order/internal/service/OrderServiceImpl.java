@@ -350,4 +350,13 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAllOrdersByAssignedSprayerIds(Long.valueOf(userDetails.getUsername())).stream().map(entity -> (OrderDto) entity).toList();
     }
 
+    public byte[] getQrConfirmation(Long id) throws BadRequestException {
+        OrderDto orderDto = getOrderById(id);
+        if (!orderDto.getStatus().equals(OrderStatus.IN_PROGRESS)) {
+            throw new BadRequestException("This order is not in progress. You cannot get dual confirmation QR code.");
+        }
+        return null;
+
+    }
+
 }
