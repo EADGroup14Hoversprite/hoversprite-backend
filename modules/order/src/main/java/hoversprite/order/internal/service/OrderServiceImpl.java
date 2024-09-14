@@ -11,6 +11,7 @@ import hoversprite.common.external.enums.OrderStatus;
 import hoversprite.notification.external.service.NotificationService;
 import hoversprite.order.internal.model.Order;
 import hoversprite.order.internal.repository.OrderRepository;
+import hoversprite.otp.external.service.SmsService;
 import hoversprite.payment.external.service.PaymentService;
 import hoversprite.user.external.dto.UserDto;
 import hoversprite.user.external.service.UserService;
@@ -30,7 +31,6 @@ import hoversprite.order.external.dto.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import hoversprite.common.external.type.Location;
-import hoversprite.common.external.type.LunarDate;
 import hoversprite.common.external.util.UtilFunctions;
 
 import java.time.LocalDate;
@@ -56,6 +56,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private SmsService smsService;
 
     public OrderDto createOrder(CropType cropType, String farmerName, String farmerPhoneNumber, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
 
@@ -116,59 +119,43 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
 
-        if(status == OrderStatus.CONFIRMED) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
-                throw new AccessDeniedException("Only receptionists are allowed to confirm an order");
-            }
-            if (order.getStatus() != OrderStatus.PENDING) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
-            }
+        switch (status) {
+            case CANCELLED:
+                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name())) &&
+                        !userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name()))) {
+                    throw new AccessDeniedException("Only farmers/receptionists are allowed to confirm an order");
+                }
+                if (!String.valueOf(order.getBookerId()).equals(userDetails.getUsername())) {
+                    throw new AccessDeniedException("You are not the booker of this order. You cannot cancel it.");
+                }
+                break;
 
-            UserDto user = userService.getUserById(order.getBookerId());
+            case CONFIRMED:
+                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+                    throw new AccessDeniedException("Only receptionists are allowed to confirm an order");
+                }
+                if (order.getStatus() != OrderStatus.PENDING) {
+                    throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
+                }
+                UserDto user = userService.getUserById(order.getBookerId());
+                emailService.sendOrderConfirmationEmail(user.getEmailAddress(), user.getFullName(), order.getId());
+                break;
 
-            emailService.sendOrderConfirmationEmail(user.getEmailAddress(), user.getFullName(), order.getId());
+            case IN_PROGRESS:
+                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_SPRAYER.name()))) {
+                    throw new AccessDeniedException("Only sprayers are allowed to start the spraying process of an order.");
+                }
+                if (!order.getAssignedSprayerIds().contains(Long.parseLong(userDetails.getUsername()))) {
+                    throw new AccessDeniedException("You are not assigned to this order. You cannot mark it as in progress.");
+                }
+                if (order.getStatus() != OrderStatus.ASSIGNED) {
+                    throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only start assigned orders.");
+                }
+                break;
+
+            default:
+                throw new BadRequestException("You cannot update this status at this endpoint.");
         }
-
-        if(status == OrderStatus.IN_PROGRESS) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_SPRAYER.name()))) {
-                throw new AccessDeniedException("Only sprayers are allowed to start the spraying process of an order.");
-            }
-            if (!order.getAssignedSprayerIds().contains(Long.parseLong(userDetails.getUsername()))) {
-                throw new AccessDeniedException("You are not assigned to this order. You cannot mark it as in progress.");
-            }
-            if (order.getStatus() != OrderStatus.ASSIGNED) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only start an assigned orders.");
-            }
-        }
-
-        if(status == OrderStatus.FINISHED) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name())) && !userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
-                throw new AccessDeniedException("Only farmers or receptionists are allowed to confirmed that the spraying session is finished.");
-            }
-            if (order.getPaymentStatus()) {
-                status = OrderStatus.COMPLETED;
-            }
-            if (Long.parseLong(userDetails.getUsername()) != order.getBookerId()) {
-                throw new AccessDeniedException("You are not the booker associated with this order. You are not allowed to mark it as finished.");
-            }
-            if (order.getStatus() != OrderStatus.IN_PROGRESS) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only finish an order in progress.");
-            }
-        }
-
-//        if(status == OrderStatus.COMPLETED) {
-//            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
-//                throw new AccessDeniedException("Only receptionists are allowed to complete an order.");
-//            }
-//
-//            if (order.getStatus() != OrderStatus.FINISHED) {
-//                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only complete a finished order.");
-//            }
-//
-//            if(!order.getPaymentStatus()) {
-//                throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
-//            }
-//        }
 
         order.setStatus(status);
         notificationService.sendNotificationToUser(userDetails.getUsername(), "Your order #" + order.getId() + " has been set to " + status);
@@ -324,7 +311,7 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(order);
             return "Payment success";
         } else {
-            throw new PayPalRESTException("Payment failed. Please check your PayPal account");
+            throw new PayPalRESTException("Payment failed. Please check your card and try again.");
         }
     }
 
@@ -332,6 +319,9 @@ public class OrderServiceImpl implements OrderService {
         UserDetails userDetails = UtilFunctions.getUserDetails();
         OrderDto orderDto = getOrderById(id);
         List<Long> sprayerIds = orderDto.getAssignedSprayerIds();
+        if (!orderDto.getStatus().equals(OrderStatus.IN_PROGRESS)) {
+            throw new BadRequestException("You can only confirm cash payment when the order is in progress.");
+        }
 
         if (!sprayerIds.contains(Long.valueOf(userDetails.getUsername()))) {
             throw new AccessDeniedException("You are not assigned to this order. You cannot confirm cash payment for it.");
@@ -339,7 +329,6 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = (Order) orderDto;
         order.setPaymentStatus(true);
-        order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
 
         return "Cash payment confirmed for order #" + orderDto.getId();
@@ -350,13 +339,22 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAllOrdersByAssignedSprayerIds(Long.valueOf(userDetails.getUsername())).stream().map(entity -> (OrderDto) entity).toList();
     }
 
-    public byte[] getQrConfirmation(Long id) throws BadRequestException {
+    public void sendOtpToFarmer(Long id) throws Exception {
         OrderDto orderDto = getOrderById(id);
         if (!orderDto.getStatus().equals(OrderStatus.IN_PROGRESS)) {
-            throw new BadRequestException("This order is not in progress. You cannot get dual confirmation QR code.");
+            throw new BadRequestException("This order is not in progress. You cannot request for dual confirmation");
         }
-        return null;
 
+        smsService.sendOtpSms(id, orderDto.getFarmerPhoneNumber());
     }
 
+    public Boolean verifyOtp(Long id, String otp) throws Exception {
+        if (smsService.verifyOtp(id, otp)) {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find order with this id"));
+            order.setStatus(OrderStatus.COMPLETED);
+            return true;
+        }
+        return false;
+    }
 }

@@ -1,4 +1,4 @@
-package hoversprite.storage.internal.config;
+package hoversprite.common.internal.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
