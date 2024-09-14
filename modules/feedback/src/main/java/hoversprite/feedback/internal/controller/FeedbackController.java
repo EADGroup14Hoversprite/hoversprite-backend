@@ -28,11 +28,11 @@ class FeedbackController {
     @PreAuthorize("hasRole('FARMER')")
     @PostMapping()
     ResponseEntity<CreateFeedbackResponseDto> createFeedback(@ModelAttribute CreateFeedbackRequestDto dto) throws Exception {
-        FeedbackDto feedbackDto = feedbackService.createFeedback(dto.getOrderId(), dto.getContent(), dto.getSatisfactionRating(), dto.getAttentive(), dto.getFriendly(), dto.getProfessional(), dto.getImageUrls());
+        FeedbackDto feedbackDto = feedbackService.createFeedback(dto.getOrderId(), dto.getContent(), dto.getSatisfactionRating(), dto.getAttentive(), dto.getFriendly(), dto.getProfessional(), dto.getImages());
         return new ResponseEntity<>(new CreateFeedbackResponseDto("Feedback successfully created", feedbackDto), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping()
     ResponseEntity<GetFeedbackByOrderIdResponseDto> getFeedbacksByOrderId(@RequestParam Long orderId) {
         return new ResponseEntity<>(new GetFeedbackByOrderIdResponseDto("Feedback retrieved successfully", feedbackService.getFeedbacksByOrderId(orderId)), HttpStatus.OK);

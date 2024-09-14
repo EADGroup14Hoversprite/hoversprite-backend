@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
 
         if (!userRole.equals(UserRole.ROLE_SPRAYER) && expertise != null) {
             throw new BadRequestException("Only sprayer can register with an expertise level. Farmers and receptionist must omit or leave the expertise field null.");
+        } else if (userRole.equals(UserRole.ROLE_SPRAYER) && expertise == null) {
+            throw new BadRequestException("Sprayer must be registered with an expertise level.");
         }
 
         User user = new User(null, fullName, phoneNumber, emailAddress, homeAddress, location, userRole, password, expertise, AuthRole.ROLE_USER, googleId, facebookId, null, null);
