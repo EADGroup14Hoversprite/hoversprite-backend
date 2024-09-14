@@ -9,7 +9,7 @@ import hoversprite.common.external.enums.UserRole;
 import java.util.List;
 
 public interface UserService {
-    UserDto createUser(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String username, String password) throws Exception;
+    UserDto createUser(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String password) throws Exception;
 
     UserDto getUserById(Long id) throws Exception;
 

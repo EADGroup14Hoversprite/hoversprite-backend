@@ -26,6 +26,6 @@ public class LunarDate {
 
     @Override
     public String toString() {
-        return year + "-" + month + "-" + day;
+        return year + "-" + String.format("%02d", month) + "-" + String.format("%02d", day);
     }
 }

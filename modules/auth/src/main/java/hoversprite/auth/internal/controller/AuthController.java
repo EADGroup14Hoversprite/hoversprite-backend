@@ -3,12 +3,15 @@ package hoversprite.auth.internal.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import hoversprite.auth.internal.dto.*;
 import hoversprite.auth.internal.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,14 +27,22 @@ class AuthController {
 
     @PostMapping("/register")
     ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto dto) throws Exception {
-        AuthDto authDto = authService.register(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getLocation(), dto.getUserRole(), dto.getExpertise(), dto.getUsername(), dto.getPassword());
+        AuthDto authDto = authService.register(dto.getFullName(), dto.getPhoneNumber(), dto.getEmailAddress(), dto.getHomeAddress(), dto.getLocation(), dto.getUserRole(), dto.getExpertise(), dto.getPassword());
         return new ResponseEntity<>(new AuthResponseDto("User registered successfully", authDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")
     ResponseEntity<AuthResponseDto> signIn(@RequestBody SignInRequestDto dto) throws Exception {
-        AuthDto authDTO = authService.signIn(dto.getEmailOrPhone(), dto.getPassword());
-        return new ResponseEntity<>(new AuthResponseDto("User signed in successfully", authDTO), HttpStatus.CREATED);
+        AuthDto authDto = authService.signIn(dto.getEmailOrPhone(), dto.getPassword());
+        return new ResponseEntity<>(new AuthResponseDto("User signed in successfully", authDto), HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/me")
+    ResponseEntity<AuthResponseDto> getCurrentAuthenticatedUser() throws Exception {
+        AuthDto authDto = authService.getCurrentAuthenticatedUser();
+        return new ResponseEntity<>(new AuthResponseDto("Current authenticated user info retrieved", authDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/google/redirect")
@@ -40,11 +51,19 @@ class AuthController {
     }
 
     @GetMapping("/google/callback")
-    ResponseEntity<AuthResponseDto> handleGoogleCallback(@RequestParam String code) throws JsonProcessingException {
-        AuthDto authDto = authService.handleGoogleCallback(code);
+    ResponseEntity<Void> handleGoogleCallback(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        Cookie authCookie = authService.handleGoogleCallback(code);
 //        return new ResponseEntity<>(new AuthResponseDto(authDto == null ? "User is not registered" : "User signed in with Google successfully.", authDto), HttpStatus.OK);
+        response.addCookie(authCookie);
+
+        System.out.print(authCookie.getValue());
+        if (authCookie.getValue().contains("accessToken%22%3Anull")) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create("http://localhost:3000/auth/sign-up"))
+                    .build();
+        }
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://localhost:3000/auth/google/callback"))
+                .location(URI.create("http://localhost:3000/orders"))
                 .build();
     }
 

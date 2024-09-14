@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public User createUser(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String username, String password) throws Exception {
+    public User createUser(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String password) throws Exception {
         if (userRepository.findByEmailAddress(emailAddress).isPresent()) {
             throw new DataIntegrityViolationException("This email has already been registered");
         }
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Only sprayer can register with an expertise level. Farmers and receptionist must omit or leave the expertise field null.");
         }
 
-        User user = new User(null, fullName, phoneNumber, emailAddress, homeAddress, location, userRole, username, password, expertise, AuthRole.ROLE_USER, null, null);
+        User user = new User(null, fullName, phoneNumber, emailAddress, homeAddress, location, userRole, password, expertise, AuthRole.ROLE_USER, null, null);
 
         return userRepository.save(user);
     }

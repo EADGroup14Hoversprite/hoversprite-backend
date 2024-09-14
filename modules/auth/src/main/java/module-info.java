@@ -17,7 +17,8 @@ module auth {
     requires spring.security.config;
     requires io.swagger.v3.oas.models;
     requires spring.security.oauth2.client;
-    requires com.fasterxml.jackson.databind;
     requires json.smart;
     requires jakarta.persistence;
+    requires com.fasterxml.jackson.datatype.jsr310;
+    requires com.fasterxml.jackson.databind;
 }

@@ -2,6 +2,7 @@ package hoversprite.auth.internal.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import hoversprite.auth.external.service.JwtService;
 import hoversprite.auth.internal.dto.AuthDto;
 import hoversprite.auth.internal.dto.GoogleInfoResponseDto;
@@ -9,11 +10,14 @@ import hoversprite.auth.internal.dto.GoogleTokenResponseDto;
 import hoversprite.common.external.enums.Expertise;
 import hoversprite.common.external.enums.UserRole;
 import hoversprite.common.external.type.Location;
+import hoversprite.common.external.util.UtilFunctions;
 import hoversprite.user.external.dto.UserDto;
 import hoversprite.user.external.service.UserService;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -38,12 +42,13 @@ public class AuthService {
     @Autowired
     private InMemoryClientRegistrationRepository clientRegistrationRepository;
 
-    public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String username, String password) throws Exception {
+    public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String password) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(password);
-        UserDto newUserDto = userService.createUser(fullName, phoneNumber, emailAddress, homeAddress, location, userRole, expertise, username, encryptedPassword);
+        UserDto newUserDto = userService.createUser(fullName, phoneNumber, emailAddress, homeAddress, location, userRole, expertise, encryptedPassword);
 
-        return new AuthDto(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
+        return new AuthDto(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getHomeAddress(), newUserDto.getLocation(),  newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
+
     }
 
     public AuthDto signIn(String emailOrPhone, String password) throws Exception {
@@ -54,7 +59,14 @@ public class AuthService {
             throw new BadCredentialsException("Invalid password.");
         }
 
-        return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+        return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+    }
+
+    public AuthDto getCurrentAuthenticatedUser() throws Exception {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        System.out.print(userDetails);
+        UserDto userDto = userService.getUserById(Long.valueOf(userDetails.getUsername()));
+        return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
     }
 
     public String getOAuthGoogleUrl() {
@@ -68,7 +80,7 @@ public class AuthService {
                 authUri, clientId, redirectUri, scope);
     }
 
-    public AuthDto handleGoogleCallback(String code) throws JsonProcessingException {
+    public Cookie handleGoogleCallback(String code) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
         String tokenUri = "https://oauth2.googleapis.com/token";
 
@@ -90,6 +102,7 @@ public class AuthService {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         GoogleTokenResponseDto tokenResponseDto = objectMapper.readValue(tokenResponse.getBody(), GoogleTokenResponseDto.class);
 
         String userInfoUri = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -104,11 +117,21 @@ public class AuthService {
         String email = infoResponseDto.getEmail();
         String fullName = infoResponseDto.getName();
 
+        AuthDto authDto;
         try {
             UserDto userDto = userService.getUserByEmailAddressOrPhoneNumber(email);
-            return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+            authDto = new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
         } catch (Exception e) {
-            return new AuthDto(null, fullName, null, email, null, null, null, null);
+            authDto = new AuthDto(null, fullName, null, email, null, null, null, null, null, null);
         }
+
+        String authJson = objectMapper.writeValueAsString(authDto);
+        String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
+        Cookie cookie = new Cookie("authInfo", encodedAuthJson);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(900);
+        return cookie;
     }
 }
