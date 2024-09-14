@@ -19,6 +19,9 @@ module common {
     requires spring.tx;
     requires rest.api.sdk;
     requires spring.context.support;
+    requires firebase.admin;
+    requires com.google.auth;
+    requires com.google.auth.oauth2;
 
     exports hoversprite.common.external.enums;
     exports hoversprite.common.external.type;

@@ -1,6 +1,5 @@
 package hoversprite.storage.internal.service;
 
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import hoversprite.storage.external.service.StorageService;

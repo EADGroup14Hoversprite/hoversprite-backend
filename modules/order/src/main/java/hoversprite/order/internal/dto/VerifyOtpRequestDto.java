@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetQrConfirmationResponseDto {
-    private String message;
-
-    private byte[] qrCode;
+public class VerifyOtpRequestDto {
+    private String otp;
 }

@@ -72,5 +72,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByGoogleId(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with this Google id does not exist."));
     }
-
 }

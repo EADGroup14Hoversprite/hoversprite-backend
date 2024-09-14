@@ -119,10 +119,18 @@ class OrderController {
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
-    @GetMapping("/{id}/qr-confirmation")
-    ResponseEntity<GetQrConfirmationResponseDto> getQrConfirmation(@PathVariable Long id) {
-        return null;
+    @GetMapping("/{id}/send-otp")
+    ResponseEntity<GetOtpConfirmationResponseDto> sendOtp(@PathVariable Long id) throws Exception {
+        orderService.sendOtpToFarmer(id);
+        return new ResponseEntity<>(new GetOtpConfirmationResponseDto("Otp sent to farmer. Please wait."), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
+    @GetMapping("/{id}/verify-otp")
+    ResponseEntity<GetOtpConfirmationResponseDto> verifyOtp(@PathVariable Long id, @RequestBody VerifyOtpRequestDto dto) throws Exception {
+        return new ResponseEntity<>(new GetOtpConfirmationResponseDto(orderService.verifyOtp(id, dto.getOtp()) ? "Successfully verified OTP, order is marked as complete.": "Failed to verify OTP, please try again."), HttpStatus.OK);
+    }
+
 
 //    @PreAuthorize("hasRole('USER')")
 //    @GetMapping("/paging")
