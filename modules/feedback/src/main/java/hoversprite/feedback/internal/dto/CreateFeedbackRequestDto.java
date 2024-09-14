@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class CreateFeedbackRequestDto {
 
     private Integer professional;
 
-    private List<MultipartFile> imageUrls;
+    @Schema(type = "array", format = "binary")
+    private List<MultipartFile> images;
 
 }

@@ -1,5 +1,6 @@
 package hoversprite.feedback.internal.service;
 
+import hoversprite.common.external.enums.OrderStatus;
 import hoversprite.order.external.dto.OrderDto;
 import hoversprite.order.external.service.OrderService;
 import hoversprite.feedback.internal.model.Feedback;
@@ -9,11 +10,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 import hoversprite.feedback.external.dto.FeedbackDto;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
 import hoversprite.feedback.external.service.FeedbackService;
 import hoversprite.common.external.util.UtilFunctions;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     public FeedbackDto createFeedback(Long orderId, String content, FeedbackSatisfactionRating satisfactionRating, Integer attentive, Integer friendly, Integer professional, List<MultipartFile> images) throws Exception {
         OrderDto orderDto = orderService.getOrderById(orderId);
+        if (orderDto.getStatus() != OrderStatus.COMPLETED) {
+            throw new BadRequestException("This order is not completed. You cannot provide feedback");
+        }
         orderService.updateOrderFeedback(orderDto.getId());
         UserDetails userDetails = UtilFunctions.getUserDetails();
         if (!Objects.equals(orderDto.getBookerId(), Long.valueOf(userDetails.getUsername()))) {

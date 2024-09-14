@@ -11,4 +11,5 @@ module feedback {
     requires spring.data.jpa;
     requires storage;
     requires spring.web;
+    requires spring.context;
 }

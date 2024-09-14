@@ -63,6 +63,14 @@ public class OrderServiceImpl implements OrderService {
         if (numOrders.size() >= 2) {
             throw new DataIntegrityViolationException("Maximum number of order for this time slot has been reached");
         }
+        
+        if (farmlandArea == 0) {
+            throw new BadRequestException("Farmland area must be larger than zero.");
+        }
+        
+        if (desiredDate.isBefore(LocalDate.now())) {
+            throw new BadRequestException("You cannot book an order in the past");
+        }
 
         UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
@@ -137,6 +145,9 @@ public class OrderServiceImpl implements OrderService {
             if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_FARMER.name())) && !userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
                 throw new AccessDeniedException("Only farmers or receptionists are allowed to confirmed that the spraying session is finished.");
             }
+            if (order.getPaymentStatus()) {
+                status = OrderStatus.COMPLETED;
+            }
             if (Long.parseLong(userDetails.getUsername()) != order.getBookerId()) {
                 throw new AccessDeniedException("You are not the booker associated with this order. You are not allowed to mark it as finished.");
             }
@@ -145,20 +156,19 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        if(status == OrderStatus.COMPLETED) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
-                throw new AccessDeniedException("Only receptionists are allowed to complete an order.");
-            }
-
-            if (order.getStatus() != OrderStatus.FINISHED) {
-                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only complete a finished order.");
-            }
-
-            if(!order.getPaymentStatus()) {
-                throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
-            }
-
-        }
+//        if(status == OrderStatus.COMPLETED) {
+//            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name()))) {
+//                throw new AccessDeniedException("Only receptionists are allowed to complete an order.");
+//            }
+//
+//            if (order.getStatus() != OrderStatus.FINISHED) {
+//                throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only complete a finished order.");
+//            }
+//
+//            if(!order.getPaymentStatus()) {
+//                throw new IllegalStateException("This order is not yet paid for. You cannot mark it as complete.");
+//            }
+//        }
 
         order.setStatus(status);
         notificationService.sendNotificationToUser(userDetails.getUsername(), "Your order #" + order.getId() + " has been set to " + status);
@@ -329,6 +339,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = (Order) orderDto;
         order.setPaymentStatus(true);
+        order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
 
         return "Cash payment confirmed for order #" + orderDto.getId();
