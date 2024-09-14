@@ -53,9 +53,6 @@ public class User implements UserDto, UserDetails {
     private UserRole userRole;
 
     @Column(nullable = false)
-    private String username;
-
-    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -30,8 +30,6 @@ public class RegisterRequestDto {
 
     private Expertise expertise;
 
-    private String username;
-
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]{6,}$", message = "Password must be at least 6 characters long, contain at least 1 number, and 1 special character")
     private String password;
 

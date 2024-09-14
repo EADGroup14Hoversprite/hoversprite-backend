@@ -10,12 +10,14 @@ import hoversprite.auth.internal.dto.GoogleTokenResponseDto;
 import hoversprite.common.external.enums.Expertise;
 import hoversprite.common.external.enums.UserRole;
 import hoversprite.common.external.type.Location;
+import hoversprite.common.external.util.UtilFunctions;
 import hoversprite.user.external.dto.UserDto;
 import hoversprite.user.external.service.UserService;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -40,10 +42,10 @@ public class AuthService {
     @Autowired
     private InMemoryClientRegistrationRepository clientRegistrationRepository;
 
-    public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String username, String password) throws Exception {
+    public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, Expertise expertise, String password) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(password);
-        UserDto newUserDto = userService.createUser(fullName, phoneNumber, emailAddress, homeAddress, location, userRole, expertise, username, encryptedPassword);
+        UserDto newUserDto = userService.createUser(fullName, phoneNumber, emailAddress, homeAddress, location, userRole, expertise, encryptedPassword);
 
         return new AuthDto(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getHomeAddress(), newUserDto.getLocation(),  newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
 
@@ -57,6 +59,13 @@ public class AuthService {
             throw new BadCredentialsException("Invalid password.");
         }
 
+        return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+    }
+
+    public AuthDto getCurrentAuthenticatedUser() throws Exception {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        System.out.print(userDetails);
+        UserDto userDto = userService.getUserById(Long.valueOf(userDetails.getUsername()));
         return new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
     }
 
