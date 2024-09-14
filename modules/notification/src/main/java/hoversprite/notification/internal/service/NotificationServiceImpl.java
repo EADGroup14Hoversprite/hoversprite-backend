@@ -1,15 +1,19 @@
 package hoversprite.notification.internal.service;
 
+import hoversprite.common.external.util.UtilFunctions;
+import hoversprite.notification.external.dto.NotificationDto;
 import hoversprite.notification.external.service.NotificationService;
 import hoversprite.notification.internal.config.WebSocketSessionManager;
 import hoversprite.notification.internal.model.Notification;
 import hoversprite.notification.internal.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -41,5 +45,10 @@ public class NotificationServiceImpl implements NotificationService {
                 session.sendMessage(new TextMessage(content));
             }
         }
+    }
+
+    public List<NotificationDto> getMyNotifications() {
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        return notificationRepository.findAllByUserId(Long.valueOf(userDetails.getPassword())).stream().map(entity -> (NotificationDto) entity).toList();
     }
 }
