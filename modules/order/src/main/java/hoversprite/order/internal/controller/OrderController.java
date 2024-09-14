@@ -118,6 +118,12 @@ class OrderController {
         return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getOrdersBySprayerId()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
+    @GetMapping("/{id}/qr-confirmation")
+    ResponseEntity<GetQrConfirmationResponseDto> getQrConfirmation(@PathVariable Long id) {
+        return null;
+    }
+
 //    @PreAuthorize("hasRole('USER')")
 //    @GetMapping("/paging")
 //    ResponseEntity<GetOrdersResponseDto> getAllOrdersPaginated(@RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String pageSize) {
