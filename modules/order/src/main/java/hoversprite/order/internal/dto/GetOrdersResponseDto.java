@@ -12,4 +12,6 @@ public class GetOrdersResponseDto {
     private String message;
 
     private List<OrderDto> orders;
+
+    private Integer maxPage;
 }

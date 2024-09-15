@@ -109,7 +109,6 @@ public class AuthService {
         request = new HttpEntity<>(headers);
         ResponseEntity<String> infoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, request, String.class);
 
-        System.out.print(infoResponse.getBody());
         GoogleInfoResponseDto infoResponseDto = objectMapper.readValue(infoResponse.getBody(), GoogleInfoResponseDto.class);
 
         String email = infoResponseDto.getEmail();
@@ -119,24 +118,29 @@ public class AuthService {
         AuthDto authDto;
         try {
             UserDto userDto = userService.getUserByGoogleId(googleId);
-            authDto = new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getUserRole(), userDto.getGoogleId(), userDto.getFacebookId(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+            Cookie cookie = new Cookie("sessionToken", jwtService.generateToken(userDto));
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            return cookie;
         } catch (Exception idException) {
             try {
                 UserDto userDto = userService.getUserByEmailAddressOrPhoneNumber(email);
-                authDto = new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(), userDto.getUserRole(), userDto.getGoogleId(), userDto.getFacebookId(), userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+                Cookie cookie = new Cookie("sessionToken", jwtService.generateToken(userDto));
+                cookie.setHttpOnly(true);
+                cookie.setSecure(true);
+                cookie.setPath("/");
+                return cookie;
             } catch (Exception emailException) {
                 authDto = new AuthDto(null, fullName, null, email, null, null, null, googleId, null, null, null, null, null);
+                String authJson = objectMapper.writeValueAsString(authDto);
+                Cookie cookie = new Cookie("authInfo", authJson);
+                cookie.setHttpOnly(true);
+                cookie.setSecure(true);
+                cookie.setPath("/");
+                return cookie;
             }
         }
-
-        String authJson = objectMapper.writeValueAsString(authDto);
-        String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
-        Cookie cookie = new Cookie("authInfo", encodedAuthJson);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(900);
-        return cookie;
     }
 
     public String getOAuthFacebookUrl() {
@@ -179,28 +183,31 @@ public class AuthService {
 
         request = new HttpEntity<>(headers);
         ResponseEntity<String> infoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, request, String.class);
-        System.out.print(infoResponse.getBody());
 
         FacebookInfoResponseDto infoResponseDto = objectMapper.readValue(infoResponse.getBody(), FacebookInfoResponseDto.class);
 
         String fullName = infoResponseDto.getFullName();
         String facebookId = infoResponseDto.getId();
+        System.out.print(infoResponseDto);
 
         AuthDto authDto;
         try {
             UserDto userDto = userService.getUserByFacebookId(facebookId);
-            authDto = new AuthDto(userDto.getId(), userDto.getFullName(), userDto.getPhoneNumber(), userDto.getEmailAddress(), userDto.getHomeAddress(), userDto.getLocation(),userDto.getUserRole(), userDto.getGoogleId(), userDto.getFacebookId(),  userDto.getExpertise(), userDto.getCreatedAt(), userDto.getUpdatedAt(), jwtService.generateToken(userDto));
+            Cookie cookie = new Cookie("sessionToken", jwtService.generateToken(userDto));
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            return cookie;
         } catch (Exception e) {
             authDto = new AuthDto(null, fullName, null, null, null, null, null, null, facebookId,null,null, null, null);
+            String authJson = objectMapper.writeValueAsString(authDto);
+            String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
+            Cookie cookie = new Cookie("authInfo", encodedAuthJson);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            return cookie;
         }
 
-        String authJson = objectMapper.writeValueAsString(authDto);
-        String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
-        Cookie cookie = new Cookie("authInfo", encodedAuthJson);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(900);
-        return cookie;
     }
 }

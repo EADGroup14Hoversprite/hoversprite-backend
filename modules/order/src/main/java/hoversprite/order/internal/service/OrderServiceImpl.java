@@ -18,6 +18,7 @@ import hoversprite.user.external.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -95,22 +96,22 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order with this id does not exist"));
     }
 
-    public List<OrderDto> getAllOrders(int page, int pageSize, String sortBy, String sortDirection) {
+    public Page<Order> getAllOrders(int page, int pageSize, String sortBy, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return orderRepository.findAll(pageable).stream().map(entity -> (OrderDto) entity).toList();
+        return orderRepository.findAll(pageable);
     }
 
-    public List<OrderDto> getOrdersByBookerId(int page, int pageSize, String sortBy, String sortDirection) throws Exception {
+    public Page<Order> getOrdersByBookerId(int page, int pageSize, String sortBy, String sortDirection) throws Exception {
         UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return orderRepository.findAllByBookerId(currentUserId, pageable).stream().map(entity -> (OrderDto) entity).toList();
+        return orderRepository.findAllByBookerId(currentUserId, pageable);
     }
 
     @Override
