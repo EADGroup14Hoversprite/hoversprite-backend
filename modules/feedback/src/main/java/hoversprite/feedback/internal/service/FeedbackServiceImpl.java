@@ -36,6 +36,9 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (orderDto.getStatus() != OrderStatus.COMPLETED) {
             throw new BadRequestException("This order is not completed. You cannot provide feedback");
         }
+        if (attentive < 1 || attentive > 5) {
+
+        }
         orderService.updateOrderFeedback(orderDto.getId());
         UserDetails userDetails = UtilFunctions.getUserDetails();
         if (!Objects.equals(orderDto.getBookerId(), Long.valueOf(userDetails.getUsername()))) {
