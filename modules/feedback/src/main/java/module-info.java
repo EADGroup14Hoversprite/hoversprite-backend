@@ -12,4 +12,5 @@ module feedback {
     requires storage;
     requires spring.web;
     requires spring.context;
+    requires jakarta.validation;
 }

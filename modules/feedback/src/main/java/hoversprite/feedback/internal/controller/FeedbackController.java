@@ -6,6 +6,7 @@ import hoversprite.feedback.internal.dto.GetFeedbackByOrderIdResponseDto;
 import hoversprite.feedback.internal.service.FeedbackServiceImpl;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,9 @@ class FeedbackController {
     @Autowired
     private FeedbackServiceImpl feedbackService;
 
-    @PreAuthorize("hasRole('FARMER')")
+    @PreAuthorize("hasRole('USER') and hasRole('FARMER')")
     @PostMapping()
-    ResponseEntity<CreateFeedbackResponseDto> createFeedback(@ModelAttribute CreateFeedbackRequestDto dto) throws Exception {
+    ResponseEntity<CreateFeedbackResponseDto> createFeedback(@Valid @ModelAttribute CreateFeedbackRequestDto dto) throws Exception {
         FeedbackDto feedbackDto = feedbackService.createFeedback(dto.getOrderId(), dto.getContent(), dto.getSatisfactionRating(), dto.getAttentive(), dto.getFriendly(), dto.getProfessional(), dto.getImages());
         return new ResponseEntity<>(new CreateFeedbackResponseDto("Feedback successfully created", feedbackDto), HttpStatus.CREATED);
     }
