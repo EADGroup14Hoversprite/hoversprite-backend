@@ -14,7 +14,7 @@ public class FacebookInfoResponseDto {
 
     @JsonProperty("name")
     private String fullName;
-    
+
     private String email;
 }
 

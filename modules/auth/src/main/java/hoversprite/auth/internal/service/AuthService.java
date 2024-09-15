@@ -189,6 +189,7 @@ public class AuthService {
 
         String fullName = infoResponseDto.getFullName();
         String facebookId = infoResponseDto.getId();
+        String email = infoResponseDto.getEmail();
         System.out.print(infoResponseDto);
 
         AuthDto authDto;
@@ -200,7 +201,7 @@ public class AuthService {
             cookie.setPath("/");
             return cookie;
         } catch (Exception e) {
-            authDto = new AuthDto(null, fullName, null, null, null, null, null, null, facebookId,null,null, null, null);
+            authDto = new AuthDto(null, fullName, null, email, null, null, null, null, facebookId,null,null, null, null);
             String authJson = objectMapper.writeValueAsString(authDto);
             String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("authInfo", encodedAuthJson);
