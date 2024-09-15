@@ -21,4 +21,5 @@ module auth {
     requires jakarta.persistence;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires com.fasterxml.jackson.databind;
+    requires spring.webmvc;
 }
