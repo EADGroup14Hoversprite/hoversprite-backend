@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class GetFeedbackByOrderIdResponseDto {
+public class GetFeedbacksByOrderIdResponseDto {
     private String message;
 
     private List<FeedbackDto> feedbacks;

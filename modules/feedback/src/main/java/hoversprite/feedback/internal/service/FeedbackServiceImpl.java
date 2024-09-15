@@ -45,7 +45,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             throw new BadRequestException("You are not the booker associated with this order.");
         }
         List<String> imageUrls = storageService.uploadFiles(images);
-        Feedback feedback = new Feedback(null, orderId, content, satisfactionRating, attentive, friendly, professional, imageUrls);
+        Feedback feedback = new Feedback(null, orderDto.getBookerId(), orderId, content, satisfactionRating, attentive, friendly, professional, imageUrls);
         return feedbackRepository.save(feedback);
     }
 

@@ -20,6 +20,9 @@ public class Feedback implements FeedbackDto {
     private Long id;
 
     @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
     private Long orderId;
 
     @Column(nullable = false)

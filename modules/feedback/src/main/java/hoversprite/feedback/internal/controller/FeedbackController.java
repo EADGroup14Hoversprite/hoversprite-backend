@@ -2,7 +2,7 @@ package hoversprite.feedback.internal.controller;
 
 import hoversprite.feedback.internal.dto.CreateFeedbackRequestDto;
 import hoversprite.feedback.internal.dto.CreateFeedbackResponseDto;
-import hoversprite.feedback.internal.dto.GetFeedbackByOrderIdResponseDto;
+import hoversprite.feedback.internal.dto.GetFeedbacksByOrderIdResponseDto;
 import hoversprite.feedback.internal.service.FeedbackServiceImpl;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import hoversprite.feedback.external.dto.FeedbackDto;
-
-import java.util.List;
 
 @Tag(name = "Feedback API")
 @SecurityRequirement(name = "bearerAuth")
@@ -35,8 +33,8 @@ class FeedbackController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping()
-    ResponseEntity<GetFeedbackByOrderIdResponseDto> getFeedbacksByOrderId(@RequestParam Long orderId) {
-        return new ResponseEntity<>(new GetFeedbackByOrderIdResponseDto("Feedback retrieved successfully", feedbackService.getFeedbacksByOrderId(orderId)), HttpStatus.OK);
+    ResponseEntity<GetFeedbacksByOrderIdResponseDto> getFeedbacksByOrderId(@RequestParam Long orderId) {
+        return new ResponseEntity<>(new GetFeedbacksByOrderIdResponseDto("Feedback retrieved successfully", feedbackService.getFeedbacksByOrderId(orderId)), HttpStatus.OK);
     }
 
 }
