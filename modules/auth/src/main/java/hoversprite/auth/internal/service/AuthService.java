@@ -134,7 +134,8 @@ public class AuthService {
             } catch (Exception emailException) {
                 authDto = new AuthDto(null, fullName, null, email, null, null, null, googleId, null, null, null, null, null);
                 String authJson = objectMapper.writeValueAsString(authDto);
-                Cookie cookie = new Cookie("authInfo", authJson);
+                String encodedAuthJson = URLEncoder.encode(authJson, StandardCharsets.UTF_8);
+                Cookie cookie = new Cookie("authInfo", encodedAuthJson);
                 cookie.setHttpOnly(true);
                 cookie.setSecure(true);
                 cookie.setPath("/");
