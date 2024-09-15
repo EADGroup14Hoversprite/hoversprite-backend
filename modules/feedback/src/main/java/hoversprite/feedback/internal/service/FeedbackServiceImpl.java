@@ -36,8 +36,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (orderDto.getStatus() != OrderStatus.COMPLETED) {
             throw new BadRequestException("This order is not completed. You cannot provide feedback");
         }
-        if (attentive < 1 || attentive > 5) {
-
+        if (images.size() > 5) {
+            throw new BadRequestException("You cannot add more than 5 images to a feedback.");
         }
         orderService.updateOrderFeedback(orderDto.getId());
         UserDetails userDetails = UtilFunctions.getUserDetails();
