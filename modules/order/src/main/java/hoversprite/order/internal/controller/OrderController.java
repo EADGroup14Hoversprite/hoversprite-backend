@@ -1,8 +1,10 @@
 package hoversprite.order.internal.controller;
 
 import hoversprite.order.internal.dto.*;
+import hoversprite.order.internal.model.Order;
 import hoversprite.order.internal.service.OrderServiceImpl;
 import hoversprite.user.external.dto.UserDto;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import hoversprite.order.external.dto.OrderDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,9 +61,9 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @GetMapping("/my-orders")
-    ResponseEntity<GetOrdersByBookerIdResponseDto> getOrdersByBookerId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "status") String sortBy, @RequestParam(defaultValue = "ASC") String sortDirection) throws Exception {
-        List<OrderDto> orderDtos = orderService.getOrdersByBookerId(page, pageSize, sortBy, sortDirection);
-        return new ResponseEntity<>(new GetOrdersByBookerIdResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
+    ResponseEntity<GetOrdersResponseDto> getOrdersByBookerId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "status") String sortBy, @RequestParam(defaultValue = "ASC") String sortDirection) throws Exception {
+        Page<Order> orderPage = orderService.getOrdersByBookerId(page, pageSize, sortBy, sortDirection);
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderPage.getContent().stream().map(entity -> (OrderDto) entity).toList(), orderPage.getTotalPages()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -71,9 +73,9 @@ class OrderController {
         LocalDate endDateConverted = Instant.ofEpochSecond(endDate).atZone(ZoneId.systemDefault()).toLocalDate();
         List<OrderDto> orderDtos = orderService.getOrdersWithinDateRange(startDateConverted, endDateConverted);
         if (orderDtos.isEmpty()) {
-            return new ResponseEntity<>(new GetOrdersResponseDto("No orders within time range found", null), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new GetOrdersResponseDto("No orders within time range found", null, null), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderDtos), HttpStatus.OK);
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderDtos, null), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
@@ -109,13 +111,14 @@ class OrderController {
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
     @GetMapping()
     ResponseEntity<GetOrdersResponseDto> getAllOrders(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "status") String sortBy, @RequestParam(defaultValue = "ASC") String sortDirection) {
-        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getAllOrders(page, pageSize, sortBy, sortDirection)), HttpStatus.OK);
+        Page<Order> orderPage = orderService.getAllOrders(page, pageSize, sortBy, sortDirection);
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderPage.getContent().stream().map(entity -> (OrderDto) entity).toList(), orderPage.getTotalPages()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
     @GetMapping("/assigned")
     ResponseEntity<GetOrdersResponseDto> getOrdersBySprayerId() throws Exception {
-        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getOrdersBySprayerId()), HttpStatus.OK);
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderService.getOrdersBySprayerId(), null), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
