@@ -63,13 +63,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByGoogleId(String id) throws Exception {
-        return userRepository.findByFacebookId(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with this Facebook id does not exist."));
+        return userRepository.findByGoogleId(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with this Google id does not exist."));
     }
 
     @Override
     public UserDto getUserByFacebookId(String id) throws Exception {
-        return userRepository.findByGoogleId(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with this Google id does not exist."));
+        return userRepository.findByFacebookId(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with this Facebook id does not exist."));
     }
 }

@@ -70,8 +70,7 @@ class AuthController {
     private ResponseEntity<Void> handleOAuthCallbackRedirect(HttpServletResponse response, Cookie authCookie) {
         response.addCookie(authCookie);
 
-        System.out.print(authCookie.getValue());
-        if (authCookie.getValue().contains("accessToken%22%3Anull")) {
+        if (authCookie.getName().equals("authInfo")) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create("http://localhost:3000/auth/redirect-register"))
                     .build();
