@@ -76,7 +76,7 @@ class AuthController {
                     .build();
         }
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://localhost:3000/orders"))
+                .location(URI.create("http://localhost:3000/farmer/orders"))
                 .build();
     }
 }

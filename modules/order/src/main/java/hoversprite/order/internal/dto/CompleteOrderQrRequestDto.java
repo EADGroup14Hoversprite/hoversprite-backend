@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetOtpConfirmationResponseDto {
-    private String message;
+public class CompleteOrderQrRequestDto {
+    private String token;
 }
