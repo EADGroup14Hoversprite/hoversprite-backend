@@ -5,11 +5,13 @@ import lombok.Data;
 import hoversprite.common.external.enums.CropType;
 import hoversprite.common.external.enums.OrderSlot;
 import hoversprite.common.external.type.Location;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateOrderRequestDto {
 
     private String farmerName;

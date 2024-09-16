@@ -36,7 +36,7 @@ public class SmsServiceImpl implements SmsService {
     }
     public void sendOtpSms(Long orderId, String phoneNumber) {
         if (phoneNumber.startsWith("0")) {
-            phoneNumber = phoneNumber.replaceFirst("0", "+84");
+            phoneNumber = phoneNumber.replaceFirst("0", "+1");
         }
         Twilio.init(accountSid, authToken);
 
@@ -47,7 +47,7 @@ public class SmsServiceImpl implements SmsService {
                         "Your order completion OTP is: " + otp + ". Please show it to your sprayer for confirmation that the order is completed.")
                 .create();
 
-        System.out.println("SMS sent successfully: " + message.getSid());
+        System.out.println("SMS sent successfully: " + message.getBody());
         verificationIds.put(String.valueOf(orderId), otp);
     }
 
