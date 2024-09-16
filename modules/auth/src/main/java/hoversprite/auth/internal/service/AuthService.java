@@ -43,7 +43,7 @@ public class AuthService {
     public AuthDto register(String fullName, String phoneNumber, String emailAddress, String homeAddress, Location location, UserRole userRole, String googleId, String facebookId, Expertise expertise, String password) throws Exception {
 
         String encryptedPassword = passwordEncoder.encode(password);
-        UserDto newUserDto = userService.createUser(fullName, phoneNumber, emailAddress, homeAddress, location, userRole, googleId, facebookId, expertise, encryptedPassword);
+        UserDto newUserDto = userService.createUser(fullName, phoneNumber.replace(" ", ""), emailAddress, homeAddress, location, userRole, googleId, facebookId, expertise, encryptedPassword);
 
         return new AuthDto(newUserDto.getId(), newUserDto.getFullName(), newUserDto.getPhoneNumber(), newUserDto.getEmailAddress(), newUserDto.getHomeAddress(), newUserDto.getLocation(), newUserDto.getUserRole(), newUserDto.getGoogleId(), newUserDto.getFacebookId(),  newUserDto.getExpertise(), newUserDto.getCreatedAt(), newUserDto.getUpdatedAt(), jwtService.generateToken(newUserDto));
 

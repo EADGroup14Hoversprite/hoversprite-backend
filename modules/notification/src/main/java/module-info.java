@@ -15,4 +15,6 @@ module notification {
     requires spring.security.config;
     requires spring.security.core;
     requires java.management;
+    requires netty.socketio;
+    requires io.netty.codec.http;
 }
