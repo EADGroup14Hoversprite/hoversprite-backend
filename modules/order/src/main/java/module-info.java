@@ -7,7 +7,6 @@ module order {
     requires notification;
     requires io.swagger.v3.oas.annotations;
     requires spring.data.jpa;
-    requires otp;
     requires common;
     requires spring.security.core;
     requires spring.tx;
@@ -19,6 +18,8 @@ module order {
     requires spring.web;
     requires static lombok;
     requires com.fasterxml.jackson.databind;
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
 
     exports hoversprite.order.external.dto;
     exports hoversprite.order.external.service;

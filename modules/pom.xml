@@ -28,7 +28,6 @@
         <module>payment</module>
         <module>notification</module>
         <module>storage</module>
-        <module>sms</module>
     </modules>
 
 </project>

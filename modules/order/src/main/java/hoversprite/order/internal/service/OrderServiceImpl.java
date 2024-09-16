@@ -1,5 +1,11 @@
 package hoversprite.order.internal.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
@@ -11,7 +17,6 @@ import hoversprite.common.external.enums.OrderStatus;
 import hoversprite.notification.external.service.NotificationService;
 import hoversprite.order.internal.model.Order;
 import hoversprite.order.internal.repository.OrderRepository;
-import hoversprite.otp.external.service.SmsService;
 import hoversprite.payment.external.service.PaymentService;
 import hoversprite.user.external.dto.UserDto;
 import hoversprite.user.external.service.UserService;
@@ -25,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import hoversprite.common.external.constant.Constants;
 import hoversprite.order.external.service.OrderService;
@@ -34,10 +40,10 @@ import org.springframework.stereotype.Service;
 import hoversprite.common.external.type.Location;
 import hoversprite.common.external.util.UtilFunctions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,9 +63,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private NotificationService notificationService;
-
-    @Autowired
-    private SmsService smsService;
 
     public OrderDto createOrder(CropType cropType, String farmerName, String farmerPhoneNumber, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
 
@@ -340,22 +343,40 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAllOrdersByAssignedSprayerIds(Long.valueOf(userDetails.getUsername())).stream().map(entity -> (OrderDto) entity).toList();
     }
 
-    public void sendOtpToFarmer(Long id) throws Exception {
+    public byte[] generateOrderCompleteQrCode(Long id) throws Exception {
         OrderDto orderDto = getOrderById(id);
-        if (!orderDto.getStatus().equals(OrderStatus.IN_PROGRESS)) {
-            throw new BadRequestException("This order is not in progress. You cannot request for dual confirmation");
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        if (!orderDto.getAssignedSprayerIds().contains(Long.valueOf(userDetails.getUsername()))) {
+            throw new AccessDeniedException("You are not a sprayer assigned to this order. You cannot generate a QR code to complete it.");
         }
-
-        smsService.sendOtpSms(id, orderDto.getFarmerPhoneNumber());
+        if(!orderDto.getStatus().equals(OrderStatus.IN_PROGRESS)) {
+            throw new BadRequestException("This order is not in progress. You cannot generate a QR code to complete it.");
+        }
+        if(!orderDto.getPaymentStatus()) {
+            throw new BadRequestException("Please confirm that the order is paid for.");
+        }
+        return generateQRCode("http://localhost:3000/order/" + id + "/complete", 250, 250);
     }
 
-    public Boolean verifyOtp(Long id, String otp) throws Exception {
-        if (smsService.verifyOtp(id, otp)) {
-            Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find order with this id"));
-            order.setStatus(OrderStatus.COMPLETED);
-            return true;
+    public Boolean completeOrder(Long id) throws Exception {
+        OrderDto orderDto = getOrderById(id);
+        UserDetails userDetails = UtilFunctions.getUserDetails();
+        if (!orderDto.getBookerId().equals(Long.valueOf(userDetails.getUsername()))) {
+            throw new AccessDeniedException("You are not the booker assigned to this order. You cannot generate a QR code to complete it.");
         }
-        return false;
+        return true;
+    }
+
+    public byte[] generateQRCode(String text, int width, int height) throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hints);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+
+        return outputStream.toByteArray();
     }
 }

@@ -5,6 +5,8 @@ import hoversprite.order.internal.model.Order;
 import hoversprite.order.internal.service.OrderServiceImpl;
 import hoversprite.user.external.dto.UserDto;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import hoversprite.order.external.dto.OrderDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -122,33 +124,17 @@ class OrderController {
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('SPRAYER')")
-    @GetMapping("/{id}/send-otp")
-    ResponseEntity<GetOtpConfirmationResponseDto> sendOtp(@PathVariable Long id) throws Exception {
-        orderService.sendOtpToFarmer(id);
-        return new ResponseEntity<>(new GetOtpConfirmationResponseDto("Otp sent to farmer. Please wait."), HttpStatus.OK);
+    @GetMapping("/{id}/generate-qr")
+    ResponseEntity<byte[]> sendQr(@PathVariable Long id) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return ResponseEntity.ok().headers(headers).body(orderService.generateOrderCompleteQrCode(id));
     }
 
-    @PreAuthorize("hasRole('USER') and hasRole('FARMER')")
-    @PostMapping("/{id}/verify-otp")
-    ResponseEntity<GetOtpConfirmationResponseDto> verifyOtp(@PathVariable Long id, @RequestBody VerifyOtpRequestDto dto) throws Exception {
-        return new ResponseEntity<>(new GetOtpConfirmationResponseDto(orderService.verifyOtp(id, dto.getOtp()) ? "Successfully verified OTP, order is marked as complete.": "Failed to verify OTP, please try again."), HttpStatus.OK);
+    @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
+    @PostMapping("/{id}/complete")
+    ResponseEntity<CompleteOrderQrRequestDto> verifyOtp(@PathVariable Long id) throws Exception {
+        return new ResponseEntity<>(new CompleteOrderQrRequestDto(orderService.completeOrder(id) ? "Successfully verified QR code, order is marked as complete.": "Failed to verify QR code, please try again."), HttpStatus.OK);
     }
-
-
-//    @PreAuthorize("hasRole('USER')")
-//    @GetMapping("/paging")
-//    ResponseEntity<GetOrdersResponseDto> getAllOrdersPaginated(@RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String pageSize) {
-//        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", ));
-//    }
 
 }
-
-//farmer1
-//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9GQVJNRVIiLCJzdWIiOiI1IiwiaWF0IjoxNzI2MTI1ODMyLCJleHAiOjE3MjYxMjk0MzJ9.Jwh3dp2e3b9DWnNrfKfU08P3B2ZzUsh3rXq3lx4r1Pbsv-4FaVcsmI7CJaOSYZGO
-//
-//receptionist1
-//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9SRUNFUFRJT05JU1QiLCJzdWIiOiI2IiwiaWF0IjoxNzI2MTI1OTE5LCJleHAiOjE3MjYxMjk1MTl9.id6ldEhJVozACGcw1flJ3Tli-XMbuXBSrb4HdChEmWO4Z2IczQz-jY-E86NOONHK
-//
-//sprayer1 id 7
-//eyJhbGciOiJIUzM4NCJ9.eyJhdXRoUm9sZSI6IlJPTEVfVVNFUiIsInVzZXJSb2xlIjoiUk9MRV9TUFJBWUVSIiwic3ViIjoiNyIsImlhdCI6MTcyNjEyNTk3OSwiZXhwIjoxNzI2MTI5NTc5fQ.Y8DZS13XyNL2ZvYco3ekBXtyCizQMlBtOAoz84C0scjNlt0cBCMuIk0z2lQG1BVd
-
