@@ -13,6 +13,7 @@ public class SocketIOConfig {
         config.setHostname("0.0.0.0");
         config.setPort(9092);
         config.setOrigin("*");
+//        config.setTransports(com.corundumstudio.socketio.Transport.WEBSOCKET);
 
         return new SocketIOServer(config);
     }

@@ -29,24 +29,16 @@ public class SocketIOHandler {
     @OnConnect
     public void onConnect(SocketIOClient client) {
         System.out.println(client + "connected");
-        String authHeader = client.getHandshakeData().getHttpHeaders().get("Authorization");
+        String token = client.getHandshakeData().getSingleUrlParam("token");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+        if (!jwtService.isTokenExpired(token)) {
+            String userId = jwtService.getUserIdFromJwt(token);
 
-            System.out.println(token);
-            if (!jwtService.isTokenExpired(token)) {
-                String userId = jwtService.getUserIdFromJwt(token);
+            client.set("userId", userId);
 
-                client.set("userId", userId);
-
-                System.out.println("Client connected with userId: " + userId);
-            } else {
-                System.out.println("Invalid JWT token");
-                client.disconnect();
-            }
+            System.out.println("Client connected with userId: " + client.get("userId"));
         } else {
-            System.out.println("Authorization header missing or invalid");
+            System.out.println("Invalid JWT token");
             client.disconnect();
         }
     }
