@@ -35,6 +35,9 @@ public class SmsServiceImpl implements SmsService {
         return false;
     }
     public void sendOtpSms(Long orderId, String phoneNumber) {
+        if (phoneNumber.startsWith("0")) {
+            phoneNumber = phoneNumber.replaceFirst("0", "+84");
+        }
         Twilio.init(accountSid, authToken);
 
         String otp = UtilFunctions.generateOtp();

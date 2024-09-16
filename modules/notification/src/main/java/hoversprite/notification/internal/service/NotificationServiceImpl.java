@@ -1,9 +1,11 @@
 package hoversprite.notification.internal.service;
 
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import hoversprite.common.external.util.UtilFunctions;
 import hoversprite.notification.external.dto.NotificationDto;
 import hoversprite.notification.external.service.NotificationService;
-import hoversprite.notification.internal.config.WebSocketSessionManager;
+import hoversprite.notification.internal.config.SocketIOHandler;
 import hoversprite.notification.internal.model.Notification;
 import hoversprite.notification.internal.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,41 +16,45 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
-    
+
     @Autowired
-    private WebSocketSessionManager sessionManager;
-    
+    private SocketIOHandler socketIOHandler;
+
     @Override
     public void sendNotificationToUser(String userId, String content) throws Exception {
-        WebSocketSession session = sessionManager.getSession(userId);
-        if (session != null && session.isOpen()) {
-            session.sendMessage(new TextMessage(content));
-            Notification notification = new Notification(null, Long.valueOf(userId), content, LocalDate.now());
-            notificationRepository.save(notification);
+        SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
+        for (SocketIOClient client : socketIOServer.getAllClients()) {
+            System.out.println(client);
+            if (userId.equals(client.get("userId"))) {
+                client.sendEvent("notification", content);
+                Notification notification = new Notification(null, Long.valueOf(userId), content, LocalDate.now());
+                notificationRepository.save(notification);
+                break;
+            }
         }
     }
 
     @Override
-    public void broadcastNotificationToAllUsersExceptTrigger(String userId, String content) throws Exception {
-        for (WebSocketSession session: sessionManager.getAllSessions()) {
-            String sessionUserId = (String) session.getAttributes().get("userId");
-            if (sessionUserId.equals(userId)) {
-                continue;
-            }
-            if (session.isOpen()) {
-                session.sendMessage(new TextMessage(content));
+    public void broadcastNotificationToAllUsersExceptTrigger(String excludedUserId, String content) throws Exception {
+        SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
+        for (SocketIOClient client : socketIOServer.getAllClients()) {
+            String clientUserId = client.get("userId");
+            if (!clientUserId.equals(excludedUserId)) {
+                client.sendEvent("notification", content);
             }
         }
     }
 
     public List<NotificationDto> getMyNotifications() {
         UserDetails userDetails = UtilFunctions.getUserDetails();
-        return notificationRepository.findAllByUserId(Long.valueOf(userDetails.getPassword())).stream().map(entity -> (NotificationDto) entity).toList();
+        Long userId = Long.valueOf(userDetails.getPassword());
+        return notificationRepository.findAllByUserId(userId).stream().map(entity -> (NotificationDto) entity).toList();
     }
 }
