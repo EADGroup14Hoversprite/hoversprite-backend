@@ -4,6 +4,7 @@ services:
         container_name: hoversprite-backend
         ports:
             - "8080:8080"
+            - "9092:9092"
         environment:
             SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hoversprite
             SPRING_DATASOURCE_USERNAME: hoversprite_admin
