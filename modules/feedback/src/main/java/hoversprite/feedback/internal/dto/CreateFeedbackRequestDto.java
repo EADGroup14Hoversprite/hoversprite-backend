@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import hoversprite.feedback.internal.enums.FeedbackSatisfactionRating;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateFeedbackRequestDto {
 
     private Long orderId;
