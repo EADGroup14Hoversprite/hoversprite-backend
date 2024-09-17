@@ -4,17 +4,17 @@ services:
         container_name: hoversprite-backend
         ports:
             - "8080:8080"
-            - "8443:8443"
+#            - "8443:8443"
             - "9092:9092"
         environment:
             SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hoversprite
             SPRING_DATASOURCE_USERNAME: hoversprite_admin
             SPRING_DATASOURCE_PASSWORD: enterprisehd
-            SERVER_SSL_KEY_STORE: /app/keystore.p12
-            SERVER_SSL_KEY_STORE_PASSWORD: changeit
-            SERVER_SSL_KEY_ALIAS: tomcat
-        volumes:
-            - ./keystore.p12:/app/keystore.p12
+#            SERVER_SSL_KEY_STORE: /app/keystore.p12
+#            SERVER_SSL_KEY_STORE_PASSWORD: changeit
+#            SERVER_SSL_KEY_ALIAS: tomcat
+#        volumes:
+#            - ./main/src/main/resources/keystore.p12:/app/keystore.p12
         depends_on:
             - postgres
         healthcheck:
