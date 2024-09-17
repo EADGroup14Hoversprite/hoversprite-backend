@@ -42,9 +42,9 @@ class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("*")); // Allow all origins
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow all standard methods
-                    corsConfig.setAllowedHeaders(List.of("*")); // Allow all headers
+                    corsConfig.setAllowedOrigins(List.of("*"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(List.of("*"));
                     return corsConfig;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -52,6 +52,7 @@ class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/sign-in", "auth/register", "auth/google/**", "auth/facebook/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/socket.io/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

@@ -11,12 +11,9 @@ import hoversprite.notification.internal.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -31,8 +28,8 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendNotificationToUser(String userId, String content) throws Exception {
         SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
         for (SocketIOClient client : socketIOServer.getAllClients()) {
-            System.out.println(client);
-            if (userId.equals(client.get("userId"))) {
+            String clientId = client.get("userId");
+            if (userId.equals(clientId)) {
                 client.sendEvent("notification", content);
                 Notification notification = new Notification(null, Long.valueOf(userId), content, LocalDate.now());
                 notificationRepository.save(notification);
