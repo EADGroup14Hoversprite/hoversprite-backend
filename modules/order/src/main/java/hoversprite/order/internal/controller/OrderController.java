@@ -81,6 +81,16 @@ class OrderController {
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
+    @GetMapping("/by-date")
+    ResponseEntity<GetOrdersResponseDto> getOrdersByDate(@RequestParam LocalDate desiredDate) {
+        List<OrderDto> orderDtos = orderService.getAllOrdersByDesiredDate(desiredDate);
+        if (orderDtos.isEmpty()) {
+            return new ResponseEntity<>(new GetOrdersResponseDto("No orders found in specified date.", null, null), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderDtos, null), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
     @GetMapping("/{id}/suggested-sprayers")
     ResponseEntity<GetSuggestedSprayersResponseDto> getSuggestedSprayers(@PathVariable Long id, @RequestParam long startDate, @RequestParam long endDate) throws Exception {
         LocalDate startDateConverted = Instant.ofEpochSecond(startDate).atZone(ZoneId.systemDefault()).toLocalDate();

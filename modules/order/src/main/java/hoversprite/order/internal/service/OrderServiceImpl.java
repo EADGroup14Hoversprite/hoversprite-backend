@@ -107,6 +107,10 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll(pageable);
     }
 
+    public List<OrderDto> getAllOrdersByDesiredDate(LocalDate desiredDate) {
+        return orderRepository.findAllByDesiredDate(desiredDate).stream().map(entity -> (OrderDto) entity).toList();
+    }
+
     public Page<Order> getOrdersByBookerId(int page, int pageSize, String sortBy, String sortDirection) throws Exception {
         UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());

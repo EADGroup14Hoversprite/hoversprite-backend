@@ -25,4 +25,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o JOIN o.assignedSprayerIds s WHERE s = :sprayerId")
     List<Order> findAllOrdersByAssignedSprayerIds(@Param("sprayerId") Long sprayerId);
+
+    List<Order> findAllByDesiredDate(LocalDate desiredDate);
 }
