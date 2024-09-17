@@ -311,6 +311,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (payment.getState().equals("approved")) {
             Order order = (Order) orderDto;
+            order.setPaymentMethod(PaymentMethod.CREDIT_CARD);
             order.setPaymentStatus(true);
             orderRepository.save(order);
             return "Payment success";
