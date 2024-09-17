@@ -26,13 +26,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotificationToUser(String userId, String content) throws Exception {
+        Notification notification = new Notification(null, Long.valueOf(userId), content, LocalDate.now());
+        notificationRepository.save(notification);
         SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
         for (SocketIOClient client : socketIOServer.getAllClients()) {
             String clientId = client.get("userId");
             if (userId.equals(clientId)) {
                 client.sendEvent("notification", content);
-                Notification notification = new Notification(null, Long.valueOf(userId), content, LocalDate.now());
-                notificationRepository.save(notification);
                 break;
             }
         }
@@ -51,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     public List<NotificationDto> getMyNotifications() {
         UserDetails userDetails = UtilFunctions.getUserDetails();
-        Long userId = Long.valueOf(userDetails.getPassword());
+        Long userId = Long.valueOf(userDetails.getUsername());
         return notificationRepository.findAllByUserId(userId).stream().map(entity -> (NotificationDto) entity).toList();
     }
 }

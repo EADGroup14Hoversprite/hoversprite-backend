@@ -132,7 +132,7 @@ class OrderController {
     }
 
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
-    @PostMapping("/{id}/complete")
+    @GetMapping("/{id}/complete")
     ResponseEntity<CompleteOrderQrRequestDto> verifyOtp(@PathVariable Long id) throws Exception {
         return new ResponseEntity<>(new CompleteOrderQrRequestDto(orderService.completeOrder(id) ? "Successfully verified QR code, order is marked as complete.": "Failed to verify QR code, please try again."), HttpStatus.OK);
     }
