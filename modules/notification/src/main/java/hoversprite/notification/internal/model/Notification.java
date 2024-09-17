@@ -2,6 +2,7 @@ package hoversprite.notification.internal.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import hoversprite.common.external.serializer.LocalDateToEpochSerializer;
+import hoversprite.notification.external.dto.NotificationDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Notification {
+public class Notification implements NotificationDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

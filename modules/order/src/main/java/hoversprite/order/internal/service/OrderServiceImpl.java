@@ -364,6 +364,7 @@ public class OrderServiceImpl implements OrderService {
         if (!orderDto.getBookerId().equals(Long.valueOf(userDetails.getUsername()))) {
             throw new AccessDeniedException("You are not the booker assigned to this order. You cannot generate a QR code to complete it.");
         }
+        notificationService.sendNotificationToUser(String.valueOf(orderDto.getBookerId()), "Your order #" + orderDto.getId() + " has been marked as complete.");
         return true;
     }
 
