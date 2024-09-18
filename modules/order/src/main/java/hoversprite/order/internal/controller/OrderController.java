@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -142,7 +143,10 @@ class OrderController {
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @GetMapping("/{id}/complete")
     ResponseEntity<CompleteOrderQrRequestDto> verifyOtp(@PathVariable Long id) throws Exception {
-        return new ResponseEntity<>(new CompleteOrderQrRequestDto(orderService.completeOrder(id) ? "Successfully verified QR code, order is marked as complete.": "Failed to verify QR code, please try again."), HttpStatus.OK);
+        orderService.completeOrder(id);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("https://localhost:3000/farmer/orders"))
+                .build();
     }
 
 }
