@@ -22,4 +22,4 @@ sudo sh init_linux.sh
 
 This server uses OpenAPIv3 & Swagger for documentation.
 
-Start server and go [here](http://localhost:8080/swagger-ui/index.html#/) for the documentation.
+Start server and go [here](https://localhost:8443/swagger-ui/index.html#/) for the documentation.
