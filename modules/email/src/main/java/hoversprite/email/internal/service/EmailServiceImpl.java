@@ -69,7 +69,7 @@ public class EmailServiceImpl implements EmailService {
                         "        <tr><th>Crop Type:</th><td>" + cropType.name() + "</td></tr>" +
                         "        <tr><th>Desired Date (Gregorian):</th><td>" + desiredDate + "</td></tr>" +
                         "        <tr><th>Desired Date (Lunar):</th><td>" + new LunarDate(desiredDate) + "</td></tr>" +
-                        "        <tr><th>Farmland Area:</th><td>" + farmlandArea + " hectare</td></tr>" +
+                        "        <tr><th>Farmland Area:</th><td>" + farmlandArea + " decare</td></tr>" +
                         "        <tr><th>Total Cost:</th><td>" + totalCost + " VND</td></tr>" +
                         "        <tr><th>Time Slot:</th><td>" + timeSlot.toString() + "</td></tr>" +
                         "        <tr><th>Status:</th><td>" + status + "</td></tr>" +
