@@ -97,10 +97,7 @@ class OrderController {
         LocalDate startDateConverted = Instant.ofEpochSecond(startDate).atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDateConverted = Instant.ofEpochSecond(endDate).atZone(ZoneId.systemDefault()).toLocalDate();
         List<UserDto> sprayerDtos = orderService.getSuggestedSprayers(id, startDateConverted, endDateConverted);
-        if (sprayerDtos.isEmpty()) {
-            return new ResponseEntity<>(new GetSuggestedSprayersResponseDto("No suitable sprayers suggested for this order", null), HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(new GetSuggestedSprayersResponseDto("Successfully found suitable sprayers for this order", sprayerDtos), HttpStatus.OK);
+        return new ResponseEntity<>(new GetSuggestedSprayersResponseDto(sprayerDtos.isEmpty() ? "No suitable sprayers suggested for this order"  : "Successfully found suitable sprayers for this order", sprayerDtos), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER') and hasRole('FARMER')")

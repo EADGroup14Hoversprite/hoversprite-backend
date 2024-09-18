@@ -282,9 +282,6 @@ public class OrderServiceImpl implements OrderService {
             assignedSprayers.add(adeptSprayers.getLast());
         }
 
-        if (assignedSprayers.isEmpty()) {
-            return null;
-        }
         return assignedSprayers;
     }
 
