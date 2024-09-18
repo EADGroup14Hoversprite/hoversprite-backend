@@ -80,9 +80,9 @@ class OrderController {
         return new ResponseEntity<>(new GetOrdersResponseDto("Orders retrieved successfully", orderDtos, null), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('USER') and hasAnyRole('RECEPTIONIST', 'FARMER')")
     @GetMapping("/by-date")
-    ResponseEntity<GetOrdersResponseDto> getOrdersByDate(@RequestParam int desiredDate) {
+    ResponseEntity<GetOrdersResponseDto> getOrdersByDate(@RequestParam long desiredDate) {
         LocalDate desiredDateConverted = Instant.ofEpochSecond(desiredDate).atZone(ZoneId.systemDefault()).toLocalDate();
         List<OrderDto> orderDtos = orderService.getAllOrdersByDesiredDate(desiredDateConverted);
         if (orderDtos.isEmpty()) {
