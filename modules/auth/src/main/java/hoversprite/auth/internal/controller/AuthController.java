@@ -72,11 +72,11 @@ class AuthController {
 
         if (authCookie.getName().equals("authInfo")) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:3000/auth/redirect-register"))
+                    .location(URI.create("https://localhost:3000/auth/redirect-register"))
                     .build();
         }
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://localhost:3000/farmer/orders"))
+                .location(URI.create("https://localhost:3000/farmer/orders"))
                 .build();
     }
 }
