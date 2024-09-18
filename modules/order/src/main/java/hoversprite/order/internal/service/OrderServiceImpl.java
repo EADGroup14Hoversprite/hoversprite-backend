@@ -368,7 +368,7 @@ public class OrderServiceImpl implements OrderService {
         if(!orderDto.getPaymentStatus()) {
             throw new BadRequestException("Please confirm that the order is paid for.");
         }
-        return generateQRCode("http://localhost:3000/order/" + id + "/complete", 250, 250);
+        return generateQRCode("https://localhost:3000/order/" + id + "/complete", 250, 250);
     }
 
     public Boolean completeOrder(Long id) throws Exception {
