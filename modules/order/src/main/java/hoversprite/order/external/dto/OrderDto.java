@@ -45,4 +45,6 @@ public interface OrderDto {
     String getFarmerPhoneNumber();
 
     Boolean getHasFeedback();
+
+    String getFarmerEmailAddress();
 }

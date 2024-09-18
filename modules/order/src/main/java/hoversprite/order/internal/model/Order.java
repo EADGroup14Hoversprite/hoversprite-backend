@@ -42,6 +42,9 @@ public class Order implements OrderDto {
     private String farmerPhoneNumber;
 
     @Column(nullable = false)
+    private String farmerEmailAddress;
+
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)

@@ -30,7 +30,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import hoversprite.common.external.constant.Constants;
 import hoversprite.order.external.service.OrderService;
@@ -64,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private NotificationService notificationService;
 
-    public OrderDto createOrder(CropType cropType, String farmerName, String farmerPhoneNumber, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
+    public OrderDto createOrder(CropType cropType, String farmerName, String farmerPhoneNumber, String farmerEmailAddress, String address, Location location, Double farmlandArea, LocalDate desiredDate, OrderSlot timeSlot) throws Exception {
 
         List<Order> numOrders = orderRepository.getPendingOrdersByDesiredDateAndTimeSlot(desiredDate, timeSlot);
         if (numOrders.size() >= 2) {
@@ -81,11 +80,14 @@ public class OrderServiceImpl implements OrderService {
 
         UserDetails userDetails = UtilFunctions.getUserDetails();
         Long currentUserId = Long.parseLong(userDetails.getUsername());
-        Order order = new Order(null, currentUserId, cropType, farmerName, farmerPhoneNumber, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, PaymentMethod.CASH,userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name())) ? OrderStatus.CONFIRMED : OrderStatus.PENDING, false, new ArrayList<>(), false, null, null);
+        Order order = new Order(null, currentUserId, cropType, farmerName, farmerPhoneNumber, farmerEmailAddress, address, location, farmlandArea, desiredDate, Constants.UNIT_COST * farmlandArea, timeSlot, PaymentMethod.CASH,userDetails.getAuthorities().contains(new SimpleGrantedAuthority(UserRole.ROLE_RECEPTIONIST.name())) ? OrderStatus.CONFIRMED : OrderStatus.PENDING, false, new ArrayList<>(), false, null, null);
         Order savedOrder = orderRepository.save(order);
         UserDto user = userService.getUserById(order.getBookerId());
 
-        emailService.sendOrderCreationEmail(user.getEmailAddress(), user.getFullName(), savedOrder.getId(), savedOrder.getFarmerName(), savedOrder.getFarmerPhoneNumber(), savedOrder.getAddress(), savedOrder.getCropType(), savedOrder.getDesiredDate(), savedOrder.getFarmlandArea(), savedOrder.getTotalCost(), savedOrder.getTimeSlot(), savedOrder.getStatus(), savedOrder.getCreatedAt());
+        emailService.sendOrderCreationEmail(savedOrder.getFarmerEmailAddress(), savedOrder.getFarmerName(), savedOrder.getId(), savedOrder.getFarmerName(), savedOrder.getFarmerPhoneNumber(), savedOrder.getAddress(), savedOrder.getCropType(), savedOrder.getDesiredDate(), savedOrder.getFarmlandArea(), savedOrder.getTotalCost(), savedOrder.getTimeSlot(), savedOrder.getStatus(), savedOrder.getCreatedAt());
+        if (!user.getEmailAddress().equals(savedOrder.getFarmerEmailAddress())) {
+            emailService.sendOrderCreationEmail(user.getEmailAddress(), user.getFullName(), savedOrder.getId(), savedOrder.getFarmerName(), savedOrder.getFarmerPhoneNumber(), savedOrder.getAddress(), savedOrder.getCropType(), savedOrder.getDesiredDate(), savedOrder.getFarmlandArea(), savedOrder.getTotalCost(), savedOrder.getTimeSlot(), savedOrder.getStatus(), savedOrder.getCreatedAt());
+        }
 
         notificationService.sendNotificationToUser(String.valueOf(user.getId()), "Your order #" + savedOrder.getId() + " has been created.");
         notificationService.broadcastNotificationToAllUsersExceptTrigger(String.valueOf(user.getId()), "A new order has been added. Please refetch for updated orders list.");
@@ -105,6 +107,10 @@ public class OrderServiceImpl implements OrderService {
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         return orderRepository.findAll(pageable);
+    }
+
+    public List<OrderDto> getAllOrdersByDesiredDate(LocalDate desiredDate) {
+        return orderRepository.findAllByDesiredDate(desiredDate).stream().map(entity -> (OrderDto) entity).toList();
     }
 
     public Page<Order> getOrdersByBookerId(int page, int pageSize, String sortBy, String sortDirection) throws Exception {
@@ -142,7 +148,10 @@ public class OrderServiceImpl implements OrderService {
                     throw new IllegalArgumentException("The status of this order is " + order.getStatus().name() + ". You can only confirm PENDING orders.");
                 }
                 UserDto user = userService.getUserById(order.getBookerId());
-                emailService.sendOrderConfirmationEmail(user.getEmailAddress(), user.getFullName(), order.getId());
+                emailService.sendOrderConfirmationEmail(order.getFarmerEmailAddress(), order.getFarmerName(), order.getId());
+                if (!user.getEmailAddress().equals(order.getFarmerEmailAddress())) {
+                    emailService.sendOrderConfirmationEmail(user.getEmailAddress(), user.getFullName(), order.getId());
+                }
                 break;
 
             case IN_PROGRESS:
@@ -193,10 +202,16 @@ public class OrderServiceImpl implements OrderService {
         UserDto user = userService.getUserById(order.getBookerId());
 
 
-        emailService.sendEmail(user.getEmailAddress(), "Order Confirmation",
-                "Hello, " + user.getFullName() + "\n" +
+        emailService.sendEmail(order.getFarmerEmailAddress(), "Order Confirmation",
+                "Hello, " + order.getFarmerName() + "\n" +
                 "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: \n" + sprayers.stream().map(sprayer -> sprayer.getFullName() + " \n")
         );
+        if (!order.getFarmerEmailAddress().equals(user.getEmailAddress())) {
+            emailService.sendEmail(user.getEmailAddress(), "Order Confirmation",
+                    "Hello, " + user.getFullName() + "\n" +
+                            "This is an email to inform you that order #" + order.getId() + " has been assigned to sprayer(s) with the following names: \n" + sprayers.stream().map(sprayer -> sprayer.getFullName() + " \n")
+            );
+        }
         notificationService.sendNotificationToUser(String.valueOf(user.getId()), "Your order #" + order.getId() + " has been assigned to sprayers.");
 
         sprayers.stream().map(sprayer -> {
