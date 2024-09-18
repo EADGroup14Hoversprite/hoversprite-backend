@@ -18,6 +18,8 @@ public class CreateOrderRequestDto {
 
     private String farmerPhoneNumber;
 
+    private String farmerEmailAddress;
+
     private CropType cropType;
 
     private String address;

@@ -35,7 +35,7 @@ class OrderController {
     @PreAuthorize("hasRole('USER') and hasAnyRole('FARMER', 'RECEPTIONIST')")
     @PostMapping
     ResponseEntity<CreateOrderResponseDto> createOrder(@RequestBody CreateOrderRequestDto dto) throws Exception {
-        OrderDto orderDto = orderService.createOrder(dto.getCropType(), dto.getFarmerName(), dto.getFarmerPhoneNumber(), dto.getAddress(), dto.getLocation(), dto.getFarmlandArea(), dto.getDesiredDate(), dto.getTimeSlot());
+        OrderDto orderDto = orderService.createOrder(dto.getCropType(), dto.getFarmerName(), dto.getFarmerPhoneNumber(), dto.getFarmerEmailAddress(), dto.getAddress(), dto.getLocation(), dto.getFarmlandArea(), dto.getDesiredDate(), dto.getTimeSlot());
         return new ResponseEntity<>(new CreateOrderResponseDto(orderDto == null ? "This time slot is full": "Order created successfully", orderDto), HttpStatus.CREATED);
     }
 
@@ -82,8 +82,9 @@ class OrderController {
 
     @PreAuthorize("hasRole('USER') and hasRole('RECEPTIONIST')")
     @GetMapping("/by-date")
-    ResponseEntity<GetOrdersResponseDto> getOrdersByDate(@RequestParam LocalDate desiredDate) {
-        List<OrderDto> orderDtos = orderService.getAllOrdersByDesiredDate(desiredDate);
+    ResponseEntity<GetOrdersResponseDto> getOrdersByDate(@RequestParam int desiredDate) {
+        LocalDate desiredDateConverted = Instant.ofEpochSecond(desiredDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        List<OrderDto> orderDtos = orderService.getAllOrdersByDesiredDate(desiredDateConverted);
         if (orderDtos.isEmpty()) {
             return new ResponseEntity<>(new GetOrdersResponseDto("No orders found in specified date.", null, null), HttpStatus.NOT_FOUND);
         }
