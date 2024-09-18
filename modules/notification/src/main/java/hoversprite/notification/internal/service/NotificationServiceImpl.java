@@ -30,8 +30,8 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
         SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
         for (SocketIOClient client : socketIOServer.getAllClients()) {
-            String clientId = client.get("userId");
-            if (userId.equals(clientId)) {
+            String clientUserId = client.get("userId") != null ? client.get("userId") : "";
+            if (userId.equals(clientUserId)) {
                 client.sendEvent("notification", content);
                 break;
             }
@@ -42,8 +42,8 @@ public class NotificationServiceImpl implements NotificationService {
     public void broadcastNotificationToAllUsersExceptTrigger(String excludedUserId, String content) throws Exception {
         SocketIOServer socketIOServer = socketIOHandler.getSocketIOServer();
         for (SocketIOClient client : socketIOServer.getAllClients()) {
-            String clientUserId = client.get("userId");
-            if (!clientUserId.equals(excludedUserId)) {
+            String clientUserId = client.get("userId") != null ? client.get("userId") : "";
+            if (!excludedUserId.equals(clientUserId)) {
                 client.sendEvent("notification", content);
             }
         }
